@@ -32,7 +32,8 @@ export function useGameLogic() {
       name: `Player ${i + 1}`,
       totalScore: 0,
       turnScore: 0,
-      turnCombinations: []
+      turnCombinations: [],
+      scoreHistory: []
     }));
 
     const initialDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
@@ -196,6 +197,17 @@ export function useGameLogic() {
         // Add these final combinations to the turn score
         currentPlayer.turnCombinations = [...currentPlayer.turnCombinations, ...combinationsWithGroup];
         currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
+      }
+      
+      // Add turn to score history if player scored points
+      if (currentPlayer.turnScore > 0) {
+        const turnNumber = currentPlayer.scoreHistory.length + 1;
+        currentPlayer.scoreHistory.push({
+          turnNumber,
+          score: currentPlayer.turnScore,
+          combinations: [...currentPlayer.turnCombinations],
+          totalScoreAfter: currentPlayer.totalScore + currentPlayer.turnScore
+        });
       }
       
       // Add turn score to total score

@@ -4,6 +4,7 @@ import { DiceRow } from './components/DiceRow';
 import { ScoreDisplay } from './components/ScoreDisplay';
 import { PlayerStatus } from './components/PlayerStatus';
 import { GameControls } from './components/GameControls';
+import { ScoreHistory } from './components/ScoreHistory';
 import { MainMenu } from './components/MainMenu';
 import { Dice1, ArrowLeft } from 'lucide-react';
 
@@ -40,15 +41,15 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 relative">
+          <button
+            onClick={returnToMenu}
+            className="absolute left-0 top-0 flex items-center gap-2 px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Menu
+          </button>
           <div className="flex items-center justify-center gap-3 mb-4">
-            <button
-              onClick={returnToMenu}
-              className="absolute left-4 top-8 flex items-center gap-2 px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Menu
-            </button>
             <Dice1 className="w-8 h-8 text-amber-600" />
             <h1 className="text-3xl font-bold text-stone-800">Kingdom Dice</h1>
             <Dice1 className="w-8 h-8 text-amber-600" />
@@ -64,6 +65,12 @@ function App() {
           currentPlayerIndex={gameState.currentPlayerIndex}
           targetScore={gameState.targetScore}
           gameWinner={gameState.gameWinner}
+        />
+
+        {/* Score History */}
+        <ScoreHistory
+          players={gameState.players}
+          currentPlayerIndex={gameState.currentPlayerIndex}
         />
 
         {/* Game Board */}

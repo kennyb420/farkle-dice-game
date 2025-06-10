@@ -13,6 +13,7 @@ export interface Player {
   totalScore: number;
   turnScore: number;
   turnCombinations: ScoringCombination[]; // Track all combinations this turn
+  scoreHistory: TurnHistory[]; // Track all completed turns
 }
 
 export interface GameState {
@@ -32,6 +33,13 @@ export interface ScoringCombination {
   points: number;
   description: string;
   lockGroup: number; // Which roll this combination came from
+}
+
+export interface TurnHistory {
+  turnNumber: number;
+  score: number;
+  combinations: ScoringCombination[];
+  totalScoreAfter: number;
 }
 
 export interface GameSettings {
