@@ -37,14 +37,14 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
-        // Lock all currently held dice permanently and roll ONLY unlocked dice
+        // Permanently lock all currently held dice and roll ONLY unlocked dice
         const newDice = prev.dice.map(die => ({
           ...die,
           // CRITICAL: Only roll dice that are NOT locked
           value: die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
-          isLocked: die.isHeld || die.isLocked, // Lock any held dice
-          isHeld: die.isLocked, // Keep previously locked dice as held
+          isLocked: die.isHeld || die.isLocked, // Lock any held dice permanently
+          isHeld: false, // Clear held status since they're now locked
           lockGroup: die.isHeld ? prev.currentLockGroup : die.lockGroup // Assign lock group to newly locked dice
         }));
 
@@ -122,23 +122,28 @@ export function useGameLogic() {
 
   const toggleDie = useCallback((dieId: number) => {
     setGameState(prev => {
-      // Only allow toggling if the die is not locked and player has rolled this turn
+      // Only allow toggling if the die is not permanently locked and player has rolled this turn
       if (!prev.hasRolledThisTurn) return prev;
       
       const newDice = prev.dice.map(die => {
         if (die.id === dieId && !die.isLocked) {
-          return { ...die, isHeld: !die.isHeld };
+          // Instantly lock the die when selected (held becomes locked immediately)
+          return { 
+            ...die, 
+            isHeld: !die.isHeld,
+            isLocked: !die.isHeld ? true : false // Lock when selecting, unlock when deselecting
+          };
         }
         return die;
       });
 
-      // Check if player has selected any dice - if so, allow rolling again
-      const hasSelectedDice = newDice.some(d => d.isHeld && !d.isLocked);
+      // Check if player has any locked dice - if so, allow rolling again
+      const hasLockedDice = newDice.some(d => d.isLocked);
       
       return {
         ...prev,
         dice: newDice,
-        canRoll: hasSelectedDice // Can only roll if dice are selected
+        canRoll: hasLockedDice // Can only roll if dice are locked
       };
     });
   }, []);
@@ -192,6 +197,7 @@ export function useGameLogic() {
       dice: prev.dice.map(die => ({
         ...die,
         isHeld: die.isHeld || die.isLocked || selectableDiceIds.includes(die.id),
+        isLocked: die.isLocked || selectableDiceIds.includes(die.id), // Instantly lock selected dice
         isScoring: selectableDiceIds.includes(die.id)
       })),
       canRoll: selectableDiceIds.length > 0 // Can roll if dice were selected

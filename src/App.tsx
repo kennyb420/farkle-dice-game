@@ -128,11 +128,11 @@ function App() {
           </div>
           
           <div className="mt-4 pt-4 border-t border-stone-200">
-            <h4 className="font-medium text-stone-700 mb-2">Game Rules</h4>
+            <h4 className="font-medium text-stone-700 mb-2">Instant Lock Rules</h4>
             <ul className="text-sm text-stone-600 space-y-1">
-              <li>• Players must roll dice manually at the start of each turn</li>
-              <li>• Selected dice become permanently locked after rolling</li>
-              <li>• Locked dice cannot be unselected and stay for the entire turn</li>
+              <li>• Click dice after rolling to instantly lock them (📌)</li>
+              <li>• Locked dice can be unlocked by clicking again before rolling</li>
+              <li>• Once you roll, all locked dice become permanently locked (🔒)</li>
               <li>• <strong>Scoring combinations are calculated separately for each roll</strong></li>
               <li>• If all dice are locked, player gets a fresh set of 6 dice</li>
               <li>• Rolling with no scoring combinations results in a bust</li>

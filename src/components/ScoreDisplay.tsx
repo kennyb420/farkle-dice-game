@@ -58,12 +58,16 @@ export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDispla
       <div className="mt-3 pt-3 border-t border-stone-200">
         <div className="text-xs text-stone-500">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-3 h-3 bg-amber-100 border border-amber-500 rounded"></div>
-            <span>Selected (can be unselected)</span>
+            <div className="w-3 h-3 bg-amber-100 border border-amber-500 rounded flex items-center justify-center">
+              <span className="text-xs">📌</span>
+            </div>
+            <span>Selected (can unlock before rolling)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-100 border border-red-500 rounded"></div>
-            <span>Locked (permanent)</span>
+            <div className="w-3 h-3 bg-red-100 border border-red-500 rounded flex items-center justify-center">
+              <span className="text-xs">🔒</span>
+            </div>
+            <span>Permanently locked</span>
           </div>
         </div>
       </div>
