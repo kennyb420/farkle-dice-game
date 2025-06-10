@@ -199,14 +199,14 @@ export function useGameLogic() {
         currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
       }
       
-      // FIXED: Only add to score history if the player actually has combinations (completed a real turn)
-      // This prevents empty turns or bust turns from being recorded
+      // FIXED: Only add ONE entry to score history per complete turn
+      // A turn includes ALL rolls from start until "End Turn" is clicked
       if (currentPlayer.turnCombinations.length > 0 && currentPlayer.turnScore > 0) {
         const turnNumber = currentPlayer.scoreHistory.length + 1;
         currentPlayer.scoreHistory.push({
           turnNumber,
           score: currentPlayer.turnScore,
-          combinations: [...currentPlayer.turnCombinations],
+          combinations: [...currentPlayer.turnCombinations], // All combinations from this entire turn
           totalScoreAfter: currentPlayer.totalScore + currentPlayer.turnScore
         });
         
@@ -214,7 +214,7 @@ export function useGameLogic() {
         currentPlayer.totalScore += currentPlayer.turnScore;
       }
       
-      // Reset turn data
+      // Reset turn data for next player
       currentPlayer.turnScore = 0;
       currentPlayer.turnCombinations = []; // Clear turn combinations
 
@@ -238,7 +238,7 @@ export function useGameLogic() {
         canRoll: true,
         gameWinner: winner,
         hasRolledThisTurn: false,
-        currentLockGroup: 0
+        currentLockGroup: 0 // Reset lock group for next player's turn
       };
     });
   }, []);
