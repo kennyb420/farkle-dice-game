@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dice3, Hand, RotateCcw, Sparkles } from 'lucide-react';
+import { Dice3, Hand, RotateCcw } from 'lucide-react';
 import { hasAnyScore } from '../utils/scoring';
 import { Die } from '../types/game';
 
@@ -90,15 +90,6 @@ export function GameControls({
         >
           <Dice3 className="w-5 h-5" />
           {isRolling ? 'Rolling...' : hasRolledThisTurn ? 'Roll Remaining Dice' : 'Roll Dice'}
-        </button>
-
-        <button
-          onClick={onAutoSelect}
-          disabled={availableDice.length === 0 || !hasRolledThisTurn}
-          className="flex items-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
-        >
-          <Sparkles className="w-5 h-5" />
-          Auto Select
         </button>
 
         <button
