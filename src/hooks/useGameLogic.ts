@@ -118,6 +118,7 @@ export function useGameLogic() {
             canRoll: false, // Player must select dice before rolling again
             hasRolledThisTurn: true,
             players: newPlayers,
+            // FIXED: Only increment lock group when dice are actually locked
             currentLockGroup: prev.currentLockGroup + 1
           };
         }
@@ -137,6 +138,7 @@ export function useGameLogic() {
             canRoll: false,
             players: bustPlayers,
             hasRolledThisTurn: true
+            // DON'T increment lock group on bust
           };
         }
 
@@ -147,6 +149,7 @@ export function useGameLogic() {
           canRoll: false, // Player must select dice before rolling again
           hasRolledThisTurn: true,
           players: newPlayers,
+          // FIXED: Only increment lock group when dice are actually locked
           currentLockGroup: prev.currentLockGroup + 1
         };
       });
@@ -238,7 +241,8 @@ export function useGameLogic() {
         canRoll: true,
         gameWinner: winner,
         hasRolledThisTurn: false,
-        currentLockGroup: 0 // Reset lock group for next player's turn
+        // FIXED: Reset lock group to 0 when starting next player's turn
+        currentLockGroup: 0
       };
     });
   }, []);
