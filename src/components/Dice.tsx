@@ -21,15 +21,15 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
     return positions[value as keyof typeof positions] || [];
   };
 
-  // Can toggle if: has rolled this turn, not rolling, and either not locked OR is held (can unlock held dice)
-  const canToggle = hasRolledThisTurn && !isRolling && (!die.isLocked || die.isHeld);
+  // Can toggle if: has rolled this turn, not rolling, and not permanently locked
+  const canToggle = hasRolledThisTurn && !isRolling && !die.isLocked;
 
   return (
     <button
       onClick={() => canToggle && onToggle(die.id)}
       className={`
         relative w-16 h-16 rounded-lg border-2 transition-all duration-300 
-        ${die.isLocked && !die.isHeld
+        ${die.isLocked
           ? 'bg-red-100 border-red-500 shadow-lg shadow-red-500/25 scale-105' 
           : die.isHeld
           ? 'bg-amber-100 border-amber-500 shadow-lg shadow-amber-500/25 scale-105'
@@ -48,7 +48,7 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
             key={index}
             className={`
               absolute w-2 h-2 rounded-full
-              ${die.isLocked && !die.isHeld ? 'bg-red-700' : 'bg-stone-700'}
+              ${die.isLocked ? 'bg-red-700' : 'bg-stone-700'}
               ${position === 'top-left' ? 'top-2 left-2' : ''}
               ${position === 'top-right' ? 'top-2 right-2' : ''}
               ${position === 'middle-left' ? 'top-1/2 left-2 -translate-y-1/2' : ''}
@@ -61,15 +61,15 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
         ))}
       </div>
       
-      {/* Lock indicator */}
-      {die.isLocked && !die.isHeld && (
+      {/* Permanently locked indicator */}
+      {die.isLocked && (
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
           <span className="text-white text-xs">🔒</span>
         </div>
       )}
       
-      {/* Held indicator (can be unlocked) */}
-      {die.isHeld && (
+      {/* Selected/held indicator (can be toggled) */}
+      {die.isHeld && !die.isLocked && (
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center">
           <span className="text-white text-xs">📌</span>
         </div>

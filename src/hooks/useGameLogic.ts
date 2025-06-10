@@ -40,8 +40,8 @@ export function useGameLogic() {
         // Permanently lock all currently held dice and roll ONLY unlocked dice
         const newDice = prev.dice.map(die => ({
           ...die,
-          // CRITICAL: Only roll dice that are NOT locked
-          value: die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
+          // CRITICAL: Only roll dice that are NOT locked AND NOT held
+          value: (die.isLocked || die.isHeld) ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
           isLocked: die.isHeld || die.isLocked, // Lock any held dice permanently
           isHeld: false, // Clear held status since they're now locked
@@ -127,23 +127,22 @@ export function useGameLogic() {
       
       const newDice = prev.dice.map(die => {
         if (die.id === dieId && !die.isLocked) {
-          // Instantly lock the die when selected (held becomes locked immediately)
+          // Toggle held status - dice are NOT locked until roll button is pressed
           return { 
             ...die, 
-            isHeld: !die.isHeld,
-            isLocked: !die.isHeld ? true : false // Lock when selecting, unlock when deselecting
+            isHeld: !die.isHeld
           };
         }
         return die;
       });
 
-      // Check if player has any locked dice - if so, allow rolling again
-      const hasLockedDice = newDice.some(d => d.isLocked);
+      // Check if player has any held dice - if so, allow rolling again
+      const hasHeldDice = newDice.some(d => d.isHeld);
       
       return {
         ...prev,
         dice: newDice,
-        canRoll: hasLockedDice // Can only roll if dice are locked
+        canRoll: hasHeldDice // Can only roll if dice are held (selected)
       };
     });
   }, []);
@@ -197,7 +196,6 @@ export function useGameLogic() {
       dice: prev.dice.map(die => ({
         ...die,
         isHeld: die.isHeld || die.isLocked || selectableDiceIds.includes(die.id),
-        isLocked: die.isLocked || selectableDiceIds.includes(die.id), // Instantly lock selected dice
         isScoring: selectableDiceIds.includes(die.id)
       })),
       canRoll: selectableDiceIds.length > 0 // Can roll if dice were selected
