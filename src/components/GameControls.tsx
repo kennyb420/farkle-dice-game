@@ -32,7 +32,7 @@ export function GameControls({
   const permanentlyLockedDice = dice.filter(d => d.isLocked);
   const heldDice = dice.filter(d => d.isHeld);
   const hasBusted = !hasAnyScore(availableDice) && availableDice.length > 0 && !canRoll && hasRolledThisTurn;
-  const hasAnyLockedDice = dice.some(d => d.isLocked);
+  const hasAnyLockedOrHeldDice = dice.some(d => d.isLocked || d.isHeld);
 
   if (gameWinner) {
     return (
@@ -93,7 +93,7 @@ export function GameControls({
 
         <button
           onClick={onEndTurn}
-          disabled={!hasAnyLockedDice}
+          disabled={!hasAnyLockedOrHeldDice}
           className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
         >
           <Hand className="w-5 h-5" />
@@ -103,7 +103,7 @@ export function GameControls({
       
       {heldDice.length > 0 && (
         <div className="text-center text-xs text-amber-600">
-          {heldDice.length} dice selected (📌) - click "Roll Remaining Dice" to lock them permanently
+          {heldDice.length} dice selected (📌) - click "Roll Remaining Dice" to lock them permanently or "End Turn" to score them
         </div>
       )}
       

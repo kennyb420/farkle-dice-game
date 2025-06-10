@@ -151,6 +151,22 @@ export function useGameLogic() {
     setGameState(prev => {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
+      
+      // CRITICAL FIX: Score any remaining held dice before ending turn
+      const heldDice = prev.dice.filter(d => d.isHeld);
+      if (heldDice.length > 0) {
+        const { combinations } = calculateScore(heldDice);
+        const combinationsWithGroup = combinations.map(combo => ({
+          ...combo,
+          lockGroup: prev.currentLockGroup
+        }));
+        
+        // Add these final combinations to the turn score
+        currentPlayer.turnCombinations = [...currentPlayer.turnCombinations, ...combinationsWithGroup];
+        currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
+      }
+      
+      // Add turn score to total score
       currentPlayer.totalScore += currentPlayer.turnScore;
       currentPlayer.turnScore = 0;
       currentPlayer.turnCombinations = []; // Clear turn combinations
