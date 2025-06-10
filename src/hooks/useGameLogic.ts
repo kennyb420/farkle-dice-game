@@ -199,8 +199,9 @@ export function useGameLogic() {
         currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
       }
       
-      // FIXED: Only add turn to score history if player actually scored points (not busted)
-      if (currentPlayer.turnScore > 0) {
+      // FIXED: Only add to score history if the player actually has combinations (completed a real turn)
+      // This prevents empty turns or bust turns from being recorded
+      if (currentPlayer.turnCombinations.length > 0 && currentPlayer.turnScore > 0) {
         const turnNumber = currentPlayer.scoreHistory.length + 1;
         currentPlayer.scoreHistory.push({
           turnNumber,
