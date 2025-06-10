@@ -1,5 +1,6 @@
 import React from 'react';
 import { Die, Player } from '../types/game';
+import { calculateScore } from '../utils/scoring';
 
 interface ScoreDisplayProps {
   heldDice: Die[];
@@ -8,50 +9,25 @@ interface ScoreDisplayProps {
 }
 
 export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDisplayProps) {
+  const { combinations } = calculateScore(heldDice);
+
   return (
     <div className="bg-stone-50 rounded-lg p-4 border border-stone-200">
       <h3 className="text-lg font-semibold text-stone-800 mb-3">Turn Score: {turnScore}</h3>
       
-      {currentPlayer.turnCombinations.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-medium text-stone-600 mb-2">Scoring Combinations This Turn:</h4>
-          
-          {/* Group combinations by lock group */}
-          {Array.from(new Set(currentPlayer.turnCombinations.map(c => c.lockGroup))).map(lockGroup => {
-            const groupCombinations = currentPlayer.turnCombinations.filter(c => c.lockGroup === lockGroup);
-            const groupTotal = groupCombinations.reduce((sum, combo) => sum + combo.points, 0);
-            
-            return (
-              <div key={lockGroup} className="bg-white rounded p-3 border border-stone-200">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-stone-500">
-                    Roll #{lockGroup + 1}
-                  </span>
-                  <span className="text-sm font-medium text-green-600">+{groupTotal}</span>
-                </div>
-                
-                <div className="space-y-1">
-                  {groupCombinations.map((combo, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
-                      <span className="text-stone-700">{combo.description}</span>
-                      <span className="font-medium text-green-600">+{combo.points}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          
-          <div className="pt-2 border-t border-stone-300">
-            <div className="flex justify-between items-center font-semibold">
-              <span className="text-stone-700">Total Turn Score:</span>
-              <span className="text-green-600">+{turnScore}</span>
+      {combinations.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-stone-600 mb-2">Scoring Combinations:</h4>
+          {combinations.map((combo, index) => (
+            <div key={index} className="flex justify-between items-center text-sm bg-white rounded p-2 border border-stone-200">
+              <span className="text-stone-700">{combo.description}</span>
+              <span className="font-medium text-green-600">+{combo.points}</span>
             </div>
-          </div>
+          ))}
         </div>
       )}
       
-      {currentPlayer.turnCombinations.length === 0 && heldDice.length > 0 && (
+      {combinations.length === 0 && heldDice.length > 0 && (
         <p className="text-sm text-stone-500">No scoring combinations selected</p>
       )}
       

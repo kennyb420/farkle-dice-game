@@ -21,8 +21,7 @@ export function useGameLogic() {
       canRoll: true,
       gameWinner: null,
       targetScore: 10000,
-      hasRolledThisTurn: false,
-      currentLockGroup: 0
+      hasRolledThisTurn: false
     };
   });
 
@@ -31,9 +30,7 @@ export function useGameLogic() {
       id: i + 1,
       name: `Player ${i + 1}`,
       totalScore: 0,
-      turnScore: 0,
-      turnCombinations: [],
-      scoreHistory: []
+      turnScore: 0
     }));
 
     const initialDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
@@ -52,8 +49,7 @@ export function useGameLogic() {
       canRoll: true,
       gameWinner: null,
       targetScore: settings.targetScore,
-      hasRolledThisTurn: false,
-      currentLockGroup: 0
+      hasRolledThisTurn: false
     });
 
     setGameMode('playing');
@@ -77,27 +73,8 @@ export function useGameLogic() {
           value: (die.isLocked || die.isHeld) ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
           isLocked: die.isHeld || die.isLocked, // Lock any held dice permanently
-          isHeld: false, // Clear held status since they're now locked
-          lockGroup: die.isHeld ? prev.currentLockGroup : die.lockGroup // Assign lock group to newly locked dice
+          isHeld: false // Clear held status since they're now locked
         }));
-
-        // Calculate scoring for newly locked dice only
-        const newlyLockedDice = newDice.filter(d => d.lockGroup === prev.currentLockGroup);
-        const { combinations } = calculateScore(newlyLockedDice);
-        
-        // Add lock group to combinations
-        const combinationsWithGroup = combinations.map(combo => ({
-          ...combo,
-          lockGroup: prev.currentLockGroup
-        }));
-
-        // Update player's turn combinations
-        const newPlayers = [...prev.players];
-        const currentPlayer = newPlayers[prev.currentPlayerIndex];
-        currentPlayer.turnCombinations = [...currentPlayer.turnCombinations, ...combinationsWithGroup];
-        
-        // Calculate total turn score from all combinations
-        currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
 
         const availableDice = newDice.filter(d => !d.isLocked);
 
@@ -116,20 +93,16 @@ export function useGameLogic() {
             dice: freshDice,
             isRolling: false,
             canRoll: false, // Player must select dice before rolling again
-            hasRolledThisTurn: true,
-            players: newPlayers,
-            // FIXED: Only increment lock group when dice are actually locked
-            currentLockGroup: prev.currentLockGroup + 1
+            hasRolledThisTurn: true
           };
         }
 
         const hasScore = hasAnyScore(availableDice);
 
         if (!hasScore && availableDice.length > 0) {
-          // Bust! End turn with no points - clear all combinations
+          // Bust! End turn with no points
           const bustPlayers = [...prev.players];
           bustPlayers[prev.currentPlayerIndex].turnScore = 0;
-          bustPlayers[prev.currentPlayerIndex].turnCombinations = [];
 
           return {
             ...prev,
@@ -138,7 +111,6 @@ export function useGameLogic() {
             canRoll: false,
             players: bustPlayers,
             hasRolledThisTurn: true
-            // DON'T increment lock group on bust
           };
         }
 
@@ -147,10 +119,7 @@ export function useGameLogic() {
           dice: newDice,
           isRolling: false,
           canRoll: false, // Player must select dice before rolling again
-          hasRolledThisTurn: true,
-          players: newPlayers,
-          // FIXED: Only increment lock group when dice are actually locked
-          currentLockGroup: prev.currentLockGroup + 1
+          hasRolledThisTurn: true
         };
       });
     }, 600);
@@ -188,38 +157,11 @@ export function useGameLogic() {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
       
-      // CRITICAL FIX: Score any remaining held dice before ending turn
-      const heldDice = prev.dice.filter(d => d.isHeld);
-      if (heldDice.length > 0) {
-        const { combinations } = calculateScore(heldDice);
-        const combinationsWithGroup = combinations.map(combo => ({
-          ...combo,
-          lockGroup: prev.currentLockGroup
-        }));
-        
-        // Add these final combinations to the turn score
-        currentPlayer.turnCombinations = [...currentPlayer.turnCombinations, ...combinationsWithGroup];
-        currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
-      }
+      // Add turn score to total score
+      currentPlayer.totalScore += currentPlayer.turnScore;
       
-      // FIXED: Only add ONE entry to score history per complete turn
-      // A turn includes ALL rolls from start until "End Turn" is clicked
-      if (currentPlayer.turnCombinations.length > 0 && currentPlayer.turnScore > 0) {
-        const turnNumber = currentPlayer.scoreHistory.length + 1;
-        currentPlayer.scoreHistory.push({
-          turnNumber,
-          score: currentPlayer.turnScore,
-          combinations: [...currentPlayer.turnCombinations], // All combinations from this entire turn
-          totalScoreAfter: currentPlayer.totalScore + currentPlayer.turnScore
-        });
-        
-        // Add turn score to total score
-        currentPlayer.totalScore += currentPlayer.turnScore;
-      }
-      
-      // Reset turn data for next player
+      // Reset turn score for next player
       currentPlayer.turnScore = 0;
-      currentPlayer.turnCombinations = []; // Clear turn combinations
 
       // Check for winner
       const winner = currentPlayer.totalScore >= prev.targetScore ? currentPlayer : null;
@@ -240,16 +182,24 @@ export function useGameLogic() {
         dice: newDice,
         canRoll: true,
         gameWinner: winner,
-        hasRolledThisTurn: false,
-        // FIXED: Reset lock group to 0 when starting next player's turn
-        currentLockGroup: 0
+        hasRolledThisTurn: false
       };
     });
   }, []);
 
   const calculateTurnScore = useCallback(() => {
-    // Turn score is now calculated when dice are locked, not here
-    // This function is kept for compatibility but doesn't need to do anything
+    setGameState(prev => {
+      const heldDice = prev.dice.filter(d => d.isHeld || d.isLocked);
+      const { totalScore } = calculateScore(heldDice);
+      
+      const newPlayers = [...prev.players];
+      newPlayers[prev.currentPlayerIndex].turnScore = totalScore;
+      
+      return {
+        ...prev,
+        players: newPlayers
+      };
+    });
   }, []);
 
   const autoSelectScoring = useCallback(() => {

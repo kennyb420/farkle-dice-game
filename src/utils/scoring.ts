@@ -1,4 +1,10 @@
-import { Die, ScoringCombination } from '../types/game';
+import { Die } from '../types/game';
+
+export interface ScoringCombination {
+  dice: number[];
+  points: number;
+  description: string;
+}
 
 export function calculateScore(dice: Die[]): { combinations: ScoringCombination[], totalScore: number } {
   const values = dice.map(d => d.value).sort();

@@ -4,7 +4,6 @@ export interface Die {
   isHeld: boolean;
   isScoring: boolean;
   isLocked: boolean;
-  lockGroup?: number; // Track which roll this die was locked in
 }
 
 export interface Player {
@@ -12,8 +11,6 @@ export interface Player {
   name: string;
   totalScore: number;
   turnScore: number;
-  turnCombinations: ScoringCombination[]; // Track all combinations this turn
-  scoreHistory: TurnHistory[]; // Track all completed turns
 }
 
 export interface GameState {
@@ -25,21 +22,6 @@ export interface GameState {
   gameWinner: Player | null;
   targetScore: number;
   hasRolledThisTurn: boolean;
-  currentLockGroup: number; // Track which roll we're on
-}
-
-export interface ScoringCombination {
-  dice: number[];
-  points: number;
-  description: string;
-  lockGroup: number; // Which roll this combination came from
-}
-
-export interface TurnHistory {
-  turnNumber: number;
-  score: number;
-  combinations: ScoringCombination[];
-  totalScoreAfter: number;
 }
 
 export interface GameSettings {

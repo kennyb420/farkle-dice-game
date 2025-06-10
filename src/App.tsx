@@ -4,7 +4,6 @@ import { DiceRow } from './components/DiceRow';
 import { ScoreDisplay } from './components/ScoreDisplay';
 import { PlayerStatus } from './components/PlayerStatus';
 import { GameControls } from './components/GameControls';
-import { ScoreHistory } from './components/ScoreHistory';
 import { MainMenu } from './components/MainMenu';
 import { Dice1, ArrowLeft } from 'lucide-react';
 
@@ -65,12 +64,6 @@ function App() {
           currentPlayerIndex={gameState.currentPlayerIndex}
           targetScore={gameState.targetScore}
           gameWinner={gameState.gameWinner}
-        />
-
-        {/* Score History */}
-        <ScoreHistory
-          players={gameState.players}
-          currentPlayerIndex={gameState.currentPlayerIndex}
         />
 
         {/* Game Board */}
