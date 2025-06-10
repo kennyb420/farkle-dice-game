@@ -78,6 +78,61 @@ export function useGameLogic() {
           isHeld: false
         }));
 
+        // CRITICAL: Add the score from newly locked dice to turnScore
+        const newlyLockedDice = prev.dice.filter(d => d.isHeld);
+        if (newlyLockedDice.length > 0) {
+          const { totalScore: newPoints } = calculateScore(newlyLockedDice);
+          const newPlayers = [...prev.players];
+          newPlayers[prev.currentPlayerIndex].turnScore += newPoints;
+          
+          const availableDice = newDice.filter(d => !d.isLocked);
+
+          // Check if all dice are locked - if so, give fresh dice
+          if (availableDice.length === 0) {
+            const freshDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
+              id: i,
+              value: Math.floor(Math.random() * 6) + 1,
+              isHeld: false,
+              isScoring: false,
+              isLocked: false
+            }));
+
+            return {
+              ...prev,
+              dice: freshDice,
+              isRolling: false,
+              canRoll: false,
+              hasRolledThisTurn: true,
+              players: newPlayers
+            };
+          }
+
+          const hasScore = hasAnyScore(availableDice);
+
+          if (!hasScore && availableDice.length > 0) {
+            // Bust! Reset turn score to 0
+            newPlayers[prev.currentPlayerIndex].turnScore = 0;
+
+            return {
+              ...prev,
+              dice: newDice,
+              isRolling: false,
+              canRoll: false,
+              players: newPlayers,
+              hasRolledThisTurn: true
+            };
+          }
+
+          return {
+            ...prev,
+            dice: newDice,
+            isRolling: false,
+            canRoll: false,
+            hasRolledThisTurn: true,
+            players: newPlayers
+          };
+        }
+
         const availableDice = newDice.filter(d => !d.isLocked);
 
         // Check if all dice are locked - if so, give fresh dice
@@ -156,20 +211,15 @@ export function useGameLogic() {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
       
-      // Calculate total score from ALL locked dice (from all rolls this turn)
-      const allLockedDice = prev.dice.filter(d => d.isLocked);
-      
-      // Also include any currently held dice
+      // Add score from any remaining held dice (not yet locked)
       const heldDice = prev.dice.filter(d => d.isHeld);
-      
-      // Combine all dice that should be scored
-      const allScoringDice = [...allLockedDice, ...heldDice];
-      
-      if (allScoringDice.length > 0) {
-        const { totalScore } = calculateScore(allScoringDice);
-        currentPlayer.turnScore = totalScore; // Set the total turn score
-        currentPlayer.totalScore += currentPlayer.turnScore; // Add to total
+      if (heldDice.length > 0) {
+        const { totalScore: heldPoints } = calculateScore(heldDice);
+        currentPlayer.turnScore += heldPoints;
       }
+      
+      // Add the turn score to total score
+      currentPlayer.totalScore += currentPlayer.turnScore;
       
       // Check for winner
       const winner = currentPlayer.totalScore >= prev.targetScore ? currentPlayer : null;
