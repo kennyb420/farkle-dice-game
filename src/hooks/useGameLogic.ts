@@ -66,25 +66,27 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
-        // Identify which dice were held before this roll
-        const previouslyHeldDice = prev.dice.filter(d => d.isHeld);
+        // Get dice that were held BEFORE this roll (these will be scored and locked)
+        const diceToScore = prev.dice.filter(d => d.isHeld && !d.isLocked);
         
-        // Permanently lock all currently held dice and roll ONLY unlocked dice
+        // Calculate score ONLY for dice that were held before rolling
+        const { totalScore: rollScore } = calculateScore(diceToScore);
+        
+        // Roll all non-locked dice (including previously held ones)
         const newDice = prev.dice.map(die => ({
           ...die,
-          // CRITICAL: Only roll dice that are NOT locked AND NOT held
-          value: (die.isLocked || die.isHeld) ? die.value : Math.floor(Math.random() * 6) + 1,
+          // Roll dice that aren't permanently locked
+          value: die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
-          isLocked: die.isHeld || die.isLocked, // Lock any held dice permanently
-          isHeld: false // Clear held status since they're now locked
+          // Lock dice that were held before this roll
+          isLocked: die.isLocked || die.isHeld,
+          // Clear held status for all dice
+          isHeld: false
         }));
 
-        // CRITICAL: Calculate score ONLY for dice that were just locked (previously held)
-        const { totalScore: newRollScore } = calculateScore(previouslyHeldDice);
-        
-        // Add this roll's score to the existing turn score
+        // Update player's turn score with this roll's points
         const newPlayers = [...prev.players];
-        newPlayers[prev.currentPlayerIndex].turnScore += newRollScore;
+        newPlayers[prev.currentPlayerIndex].turnScore += rollScore;
 
         const availableDice = newDice.filter(d => !d.isLocked);
 
