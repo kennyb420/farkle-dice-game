@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dice3, Hand, RotateCcw, Sparkles } from 'lucide-react';
+import { Dice3, Hand, RotateCcw, Sparkles, Bot, Brain } from 'lucide-react';
 import { hasAnyScore } from '../utils/scoring';
 import { Die } from '../types/game';
 
@@ -14,6 +14,8 @@ interface GameControlsProps {
   gameWinner: any;
   hasHeldDice: boolean;
   hasRolledThisTurn: boolean;
+  isAITurn?: boolean;
+  aiThinking?: boolean;
 }
 
 export function GameControls({ 
@@ -26,7 +28,9 @@ export function GameControls({
   dice,
   gameWinner,
   hasHeldDice,
-  hasRolledThisTurn
+  hasRolledThisTurn,
+  isAITurn = false,
+  aiThinking = false
 }: GameControlsProps) {
   const availableDice = dice.filter(d => !d.isLocked);
   const permanentlyLockedDice = dice.filter(d => d.isLocked);
@@ -58,12 +62,43 @@ export function GameControls({
           <h3 className="text-lg font-semibold text-red-800 mb-1">BUST!</h3>
           <p className="text-red-600">No scoring combinations. Turn ends with 0 points.</p>
         </div>
-        <button
-          onClick={onEndTurn}
-          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-        >
-          End Turn
-        </button>
+        {!isAITurn && (
+          <button
+            onClick={onEndTurn}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+          >
+            End Turn
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // AI Turn Display
+  if (isAITurn) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Bot className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-purple-800">AI Turn</h3>
+          </div>
+          {aiThinking ? (
+            <div className="flex items-center justify-center gap-2">
+              <Brain className="w-4 h-4 text-purple-600 animate-pulse" />
+              <p className="text-purple-700">AI is thinking...</p>
+            </div>
+          ) : (
+            <p className="text-purple-700">AI is making its move</p>
+          )}
+        </div>
+        
+        {/* Show current dice state for AI */}
+        {permanentlyLockedDice.length > 0 && (
+          <div className="text-center text-xs text-red-600">
+            {permanentlyLockedDice.length} dice permanently locked (🔒) this turn
+          </div>
+        )}
       </div>
     );
   }

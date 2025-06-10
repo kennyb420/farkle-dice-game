@@ -11,6 +11,8 @@ export interface Player {
   name: string;
   totalScore: number;
   turnScore: number;
+  isAI?: boolean;
+  aiDifficulty?: 'easy' | 'hard';
 }
 
 export interface GameState {
@@ -22,11 +24,15 @@ export interface GameState {
   gameWinner: Player | null;
   targetScore: number;
   hasRolledThisTurn: boolean;
+  isAITurn?: boolean;
+  aiThinking?: boolean;
 }
 
 export interface GameSettings {
   playerCount: number;
   targetScore: number;
+  gameMode: 'pvp' | 'pve';
+  aiDifficulty?: 'easy' | 'hard';
 }
 
 export type GameMode = 'menu' | 'playing';

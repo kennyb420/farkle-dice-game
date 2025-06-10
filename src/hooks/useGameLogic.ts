@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { GameState, Die, Player, GameSettings, GameMode } from '../types/game';
 import { calculateScore, hasAnyScore, getAutoSelectableDice } from '../utils/scoring';
+import { AIPlayer } from '../utils/aiLogic';
 
 export function useGameLogic() {
   const [gameMode, setGameMode] = useState<GameMode>('menu');
@@ -21,17 +22,51 @@ export function useGameLogic() {
       canRoll: true,
       gameWinner: null,
       targetScore: 10000,
-      hasRolledThisTurn: false
+      hasRolledThisTurn: false,
+      isAITurn: false,
+      aiThinking: false
     };
   });
 
+  const [aiPlayer, setAiPlayer] = useState<AIPlayer | null>(null);
+
   const startGame = useCallback((settings: GameSettings) => {
-    const players: Player[] = Array.from({ length: settings.playerCount }, (_, i) => ({
-      id: i + 1,
-      name: `Player ${i + 1}`,
-      totalScore: 0,
-      turnScore: 0
-    }));
+    const players: Player[] = [];
+    
+    if (settings.gameMode === 'pve') {
+      // Player vs AI
+      players.push({
+        id: 1,
+        name: 'Player',
+        totalScore: 0,
+        turnScore: 0,
+        isAI: false
+      });
+      
+      players.push({
+        id: 2,
+        name: `AI (${settings.aiDifficulty === 'easy' ? 'Easy' : 'Hard'})`,
+        totalScore: 0,
+        turnScore: 0,
+        isAI: true,
+        aiDifficulty: settings.aiDifficulty
+      });
+
+      // Create AI player instance
+      setAiPlayer(new AIPlayer(players[1], settings.aiDifficulty!));
+    } else {
+      // Player vs Player
+      for (let i = 0; i < settings.playerCount; i++) {
+        players.push({
+          id: i + 1,
+          name: `Player ${i + 1}`,
+          totalScore: 0,
+          turnScore: 0,
+          isAI: false
+        });
+      }
+      setAiPlayer(null);
+    }
 
     const initialDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
       id: i,
@@ -49,14 +84,73 @@ export function useGameLogic() {
       canRoll: true,
       gameWinner: null,
       targetScore: settings.targetScore,
-      hasRolledThisTurn: false
+      hasRolledThisTurn: false,
+      isAITurn: players[0].isAI || false,
+      aiThinking: false
     });
 
     setGameMode('playing');
   }, []);
 
+  // AI Turn Logic
+  useEffect(() => {
+    if (!gameState.isAITurn || !aiPlayer || gameState.gameWinner || gameState.isRolling) {
+      return;
+    }
+
+    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+    if (!currentPlayer.isAI) {
+      return;
+    }
+
+    const opponentScore = Math.max(...gameState.players.filter(p => !p.isAI).map(p => p.totalScore));
+    
+    const makeAIMove = () => {
+      const decision = aiPlayer.makeDecision(
+        gameState.dice,
+        gameState.hasRolledThisTurn,
+        gameState.targetScore,
+        opponentScore
+      );
+
+      setGameState(prev => ({ ...prev, aiThinking: true }));
+
+      setTimeout(() => {
+        setGameState(prev => ({ ...prev, aiThinking: false }));
+        
+        switch (decision.action) {
+          case 'roll':
+            rollDice();
+            break;
+          case 'endTurn':
+            endTurn();
+            break;
+          case 'selectDice':
+            if (decision.diceToSelect) {
+              // Select the dice the AI wants
+              setGameState(prev => ({
+                ...prev,
+                dice: prev.dice.map(die => ({
+                  ...die,
+                  isHeld: die.isHeld || decision.diceToSelect!.includes(die.id)
+                })),
+                canRoll: true
+              }));
+            }
+            break;
+        }
+      }, aiPlayer.getActionDelay());
+    };
+
+    // Small delay before AI starts thinking
+    const thinkingDelay = setTimeout(makeAIMove, 500);
+    
+    return () => clearTimeout(thinkingDelay);
+  }, [gameState.isAITurn, gameState.hasRolledThisTurn, gameState.dice, gameState.canRoll, aiPlayer]);
+
   const returnToMenu = useCallback(() => {
     setGameMode('menu');
+    setAiPlayer(null);
   }, []);
 
   const rollDice = useCallback(() => {
@@ -142,6 +236,9 @@ export function useGameLogic() {
   }, [gameState.canRoll, gameState.isRolling]);
 
   const toggleDie = useCallback((dieId: number) => {
+    // Don't allow manual dice selection during AI turn
+    if (gameState.isAITurn) return;
+    
     setGameState(prev => {
       if (!prev.hasRolledThisTurn) return prev;
       
@@ -163,7 +260,7 @@ export function useGameLogic() {
         canRoll: hasHeldDice
       };
     });
-  }, []);
+  }, [gameState.isAITurn]);
 
   const endTurn = useCallback(() => {
     setGameState(prev => {
@@ -187,14 +284,19 @@ export function useGameLogic() {
         isLocked: false
       }));
 
+      const nextPlayerIndex = winner ? prev.currentPlayerIndex : (prev.currentPlayerIndex + 1) % prev.players.length;
+      const nextPlayer = newPlayers[nextPlayerIndex];
+
       return {
         ...prev,
         players: newPlayers,
-        currentPlayerIndex: winner ? prev.currentPlayerIndex : (prev.currentPlayerIndex + 1) % prev.players.length,
+        currentPlayerIndex: nextPlayerIndex,
         dice: newDice,
         canRoll: true,
         gameWinner: winner,
-        hasRolledThisTurn: false
+        hasRolledThisTurn: false,
+        isAITurn: !winner && nextPlayer.isAI,
+        aiThinking: false
       };
     });
   }, []);
@@ -219,7 +321,7 @@ export function useGameLogic() {
   }, []);
 
   const autoSelectScoring = useCallback(() => {
-    if (!gameState.hasRolledThisTurn) return;
+    if (!gameState.hasRolledThisTurn || gameState.isAITurn) return;
     
     const availableDice = gameState.dice.filter(d => !d.isHeld && !d.isLocked);
     const selectableDiceIds = getAutoSelectableDice(availableDice);
@@ -233,10 +335,11 @@ export function useGameLogic() {
       })),
       canRoll: selectableDiceIds.length > 0
     }));
-  }, [gameState.dice, gameState.hasRolledThisTurn]);
+  }, [gameState.dice, gameState.hasRolledThisTurn, gameState.isAITurn]);
 
   const startNewGame = useCallback(() => {
     setGameMode('menu');
+    setAiPlayer(null);
   }, []);
 
   return {

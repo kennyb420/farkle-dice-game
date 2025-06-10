@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dice1, Users, Settings, Play } from 'lucide-react';
+import { Dice1, Users, Settings, Play, Bot, Zap, Brain } from 'lucide-react';
 import { GameSettings } from '../types/game';
 import { GameSettingsModal } from './GameSettingsModal';
 
@@ -9,14 +9,27 @@ interface MainMenuProps {
 
 export function MainMenu({ onStartGame }: MainMenuProps) {
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedMode, setSelectedMode] = useState<'pvp' | 'pve' | null>(null);
 
   const handlePlayerVsPlayer = () => {
+    setSelectedMode('pvp');
+    setShowSettings(true);
+  };
+
+  const handlePlayerVsAI = () => {
+    setSelectedMode('pve');
     setShowSettings(true);
   };
 
   const handleStartWithSettings = (settings: GameSettings) => {
     setShowSettings(false);
+    setSelectedMode(null);
     onStartGame(settings);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+    setSelectedMode(null);
   };
 
   return (
@@ -44,7 +57,8 @@ export function MainMenu({ onStartGame }: MainMenuProps) {
               </h2>
             </div>
 
-            <div className="p-8">
+            <div className="p-8 space-y-4">
+              {/* Player vs Player */}
               <button
                 onClick={handlePlayerVsPlayer}
                 className="w-full group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
@@ -58,6 +72,53 @@ export function MainMenu({ onStartGame }: MainMenuProps) {
                   </div>
                 </div>
               </button>
+
+              {/* Player vs AI */}
+              <button
+                onClick={handlePlayerVsAI}
+                className="w-full group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative flex items-center justify-center gap-4">
+                  <Bot className="w-8 h-8" />
+                  <div className="text-left">
+                    <h3 className="text-xl font-semibold mb-1">Player vs AI</h3>
+                    <p className="text-purple-100 text-sm">Test your skills against computer opponents</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* AI Difficulty Preview */}
+          <div className="bg-white rounded-lg shadow border border-stone-200 p-6">
+            <h3 className="text-lg font-semibold text-stone-800 mb-4 flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              AI Opponents
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-green-600" />
+                  <h4 className="font-medium text-green-800">Easy AI</h4>
+                </div>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li>• Makes occasional mistakes</li>
+                  <li>• Conservative play style</li>
+                  <li>• Good for beginners</li>
+                </ul>
+              </div>
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="w-4 h-4 text-red-600" />
+                  <h4 className="font-medium text-red-800">Hard AI</h4>
+                </div>
+                <ul className="text-sm text-red-700 space-y-1">
+                  <li>• Optimal decision making</li>
+                  <li>• Aggressive when needed</li>
+                  <li>• Challenging opponent</li>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -92,10 +153,11 @@ export function MainMenu({ onStartGame }: MainMenuProps) {
       </div>
 
       {/* Settings Modal */}
-      {showSettings && (
+      {showSettings && selectedMode && (
         <GameSettingsModal
+          gameMode={selectedMode}
           onStartGame={handleStartWithSettings}
-          onClose={() => setShowSettings(false)}
+          onClose={handleCloseSettings}
         />
       )}
     </div>

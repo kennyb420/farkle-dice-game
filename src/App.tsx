@@ -5,7 +5,7 @@ import { ScoreDisplay } from './components/ScoreDisplay';
 import { PlayerStatus } from './components/PlayerStatus';
 import { GameControls } from './components/GameControls';
 import { MainMenu } from './components/MainMenu';
-import { Dice1, ArrowLeft } from 'lucide-react';
+import { Dice1, ArrowLeft, Bot, Brain } from 'lucide-react';
 
 function App() {
   const {
@@ -68,12 +68,26 @@ function App() {
 
         {/* Game Board */}
         <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-4">
-            <h2 className="text-xl font-semibold text-center">
-              {gameState.gameWinner 
-                ? `🎉 ${gameState.gameWinner.name} Wins! 🎉`
-                : `${currentPlayer.name}'s Turn`
-              }
+          <div className={`text-white p-4 ${
+            currentPlayer.isAI 
+              ? 'bg-gradient-to-r from-purple-600 to-purple-700' 
+              : 'bg-gradient-to-r from-amber-600 to-amber-700'
+          }`}>
+            <h2 className="text-xl font-semibold text-center flex items-center justify-center gap-2">
+              {gameState.gameWinner ? (
+                `🎉 ${gameState.gameWinner.name} Wins! 🎉`
+              ) : (
+                <>
+                  {currentPlayer.isAI && <Bot className="w-5 h-5" />}
+                  {`${currentPlayer.name}'s Turn`}
+                  {gameState.aiThinking && (
+                    <div className="flex items-center gap-2 ml-2">
+                      <Brain className="w-4 h-4 animate-pulse" />
+                      <span className="text-sm">Thinking...</span>
+                    </div>
+                  )}
+                </>
+              )}
             </h2>
           </div>
 
@@ -107,6 +121,8 @@ function App() {
               gameWinner={gameState.gameWinner}
               hasHeldDice={hasHeldDice}
               hasRolledThisTurn={gameState.hasRolledThisTurn}
+              isAITurn={gameState.isAITurn}
+              aiThinking={gameState.aiThinking}
             />
           </div>
         </div>

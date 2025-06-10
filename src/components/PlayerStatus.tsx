@@ -1,6 +1,6 @@
 import React from 'react';
 import { Player } from '../types/game';
-import { Crown, User } from 'lucide-react';
+import { Crown, User, Bot } from 'lucide-react';
 
 interface PlayerStatusProps {
   players: Player[];
@@ -18,7 +18,9 @@ export function PlayerStatus({ players, currentPlayerIndex, targetScore, gameWin
           className={`
             p-4 rounded-lg border-2 transition-all duration-300
             ${index === currentPlayerIndex && !gameWinner
-              ? 'border-blue-500 bg-blue-50 shadow-lg' 
+              ? player.isAI 
+                ? 'border-purple-500 bg-purple-50 shadow-lg'
+                : 'border-blue-500 bg-blue-50 shadow-lg'
               : 'border-stone-200 bg-white'
             }
             ${gameWinner?.id === player.id ? 'border-gold-500 bg-gold-50 shadow-lg' : ''}
@@ -27,12 +29,16 @@ export function PlayerStatus({ players, currentPlayerIndex, targetScore, gameWin
           <div className="flex items-center gap-2 mb-2">
             {gameWinner?.id === player.id ? (
               <Crown className="w-5 h-5 text-gold-600" />
+            ) : player.isAI ? (
+              <Bot className="w-5 h-5 text-purple-600" />
             ) : (
               <User className="w-5 h-5 text-stone-600" />
             )}
             <h3 className="font-semibold text-stone-800">{player.name}</h3>
             {index === currentPlayerIndex && !gameWinner && (
-              <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+              <span className={`px-2 py-1 text-white text-xs rounded-full ${
+                player.isAI ? 'bg-purple-500' : 'bg-blue-500'
+              }`}>
                 Current
               </span>
             )}
@@ -57,7 +63,9 @@ export function PlayerStatus({ players, currentPlayerIndex, targetScore, gameWin
           <div className="mt-3">
             <div className="w-full bg-stone-200 rounded-full h-2">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  player.isAI ? 'bg-purple-500' : 'bg-blue-500'
+                }`}
                 style={{ width: `${Math.min(100, (player.totalScore / targetScore) * 100)}%` }}
               />
             </div>
