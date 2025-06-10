@@ -80,7 +80,7 @@ export function useGameLogic() {
         
         const availableDice = newDice.filter(d => !d.isLocked);
 
-        // Step 2: Check if all dice are locked - if so, give fresh dice
+        // Step 2: Check if all dice are locked - if so, give fresh dice and continue turn
         if (availableDice.length === 0) {
           const freshDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
             id: i,
@@ -94,7 +94,7 @@ export function useGameLogic() {
             ...prev,
             dice: freshDice,
             isRolling: false,
-            canRoll: false,
+            canRoll: false, // Player must select dice before rolling again
             hasRolledThisTurn: true
           };
         }

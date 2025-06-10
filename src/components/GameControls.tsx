@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dice3, Hand, RotateCcw } from 'lucide-react';
+import { Dice3, Hand, RotateCcw, Sparkles } from 'lucide-react';
 import { hasAnyScore } from '../utils/scoring';
 import { Die } from '../types/game';
 
@@ -33,6 +33,9 @@ export function GameControls({
   const heldDice = dice.filter(d => d.isHeld);
   const hasBusted = !hasAnyScore(availableDice) && availableDice.length > 0 && !canRoll && hasRolledThisTurn;
   const hasAnyLockedOrHeldDice = dice.some(d => d.isLocked || d.isHeld);
+  
+  // Check if all dice are locked (bonus turn scenario)
+  const allDiceLocked = dice.every(d => d.isLocked) && dice.length === 6;
 
   if (gameWinner) {
     return (
@@ -73,10 +76,23 @@ export function GameControls({
         </div>
       )}
       
-      {hasRolledThisTurn && !canRoll && !hasBusted && (
+      {hasRolledThisTurn && !canRoll && !hasBusted && !allDiceLocked && (
         <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <p className="text-amber-800 font-medium">
             Select scoring dice (📌) to hold them! Click selected dice to unselect.
+          </p>
+        </div>
+      )}
+      
+      {allDiceLocked && (
+        <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-purple-800">BONUS TURN!</h3>
+            <Sparkles className="w-5 h-5 text-purple-600" />
+          </div>
+          <p className="text-purple-700 font-medium">
+            All 6 dice locked! You get fresh dice and continue your turn!
           </p>
         </div>
       )}
