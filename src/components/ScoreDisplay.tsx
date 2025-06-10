@@ -9,50 +9,73 @@ interface ScoreDisplayProps {
 }
 
 export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDisplayProps) {
-  // Calculate score ONLY for currently held dice (not locked ones)
+  // Calculate potential score from currently held dice (📌)
   const currentlyHeldDice = heldDice.filter(d => d.isHeld);
-  const { combinations } = calculateScore(currentlyHeldDice);
-  const potentialScore = combinations.reduce((sum, combo) => sum + combo.points, 0);
+  const { combinations: heldCombinations } = calculateScore(currentlyHeldDice);
+  const potentialScore = heldCombinations.reduce((sum, combo) => sum + combo.points, 0);
+  
+  // Calculate score from locked dice (🔒)
+  const lockedDice = heldDice.filter(d => d.isLocked);
+  const { combinations: lockedCombinations } = calculateScore(lockedDice);
+  const lockedScore = lockedCombinations.reduce((sum, combo) => sum + combo.points, 0);
 
   return (
     <div className="bg-stone-50 rounded-lg p-4 border border-stone-200">
       <div className="mb-3">
         <h3 className="text-lg font-semibold text-stone-800">
-          Turn Score: {turnScore}
+          Turn Score: 0
           {potentialScore > 0 && (
-            <span className="text-green-600 ml-2">
+            <span className="text-amber-600 ml-2">
               + {potentialScore} (pending)
             </span>
           )}
+          {lockedScore > 0 && (
+            <span className="text-green-600 ml-2">
+              + {lockedScore} (locked)
+            </span>
+          )}
         </h3>
+        <p className="text-xs text-stone-500 mt-1">
+          Points are only added to your score when you click "End Turn"
+        </p>
       </div>
       
-      {combinations.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-stone-600 mb-2">
-            Current Selection (this roll):
+      {/* Show currently held dice combinations */}
+      {heldCombinations.length > 0 && (
+        <div className="space-y-2 mb-4">
+          <h4 className="text-sm font-medium text-amber-600 mb-2">
+            📌 Selected This Roll:
           </h4>
-          {combinations.map((combo, index) => (
-            <div key={index} className="flex justify-between items-center text-sm bg-white rounded p-2 border border-stone-200">
+          {heldCombinations.map((combo, index) => (
+            <div key={index} className="flex justify-between items-center text-sm bg-amber-50 rounded p-2 border border-amber-200">
+              <span className="text-stone-700">{combo.description}</span>
+              <span className="font-medium text-amber-600">+{combo.points}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Show locked dice combinations */}
+      {lockedCombinations.length > 0 && (
+        <div className="space-y-2 mb-4">
+          <h4 className="text-sm font-medium text-green-600 mb-2">
+            🔒 Locked From Previous Rolls:
+          </h4>
+          {lockedCombinations.map((combo, index) => (
+            <div key={index} className="flex justify-between items-center text-sm bg-green-50 rounded p-2 border border-green-200">
               <span className="text-stone-700">{combo.description}</span>
               <span className="font-medium text-green-600">+{combo.points}</span>
             </div>
           ))}
-          <div className="text-xs text-amber-600 bg-amber-50 rounded p-2 border border-amber-200">
-            💡 These points will be added when you roll or end your turn
-          </div>
         </div>
       )}
       
-      {combinations.length === 0 && currentlyHeldDice.length > 0 && (
-        <p className="text-sm text-stone-500">Selected dice have no scoring combinations</p>
-      )}
-      
-      {turnScore > 0 && (
-        <div className="mt-3 pt-3 border-t border-stone-200">
-          <div className="text-sm text-stone-600">
-            <span className="font-medium">Locked Score This Turn: </span>
-            <span className="text-green-600 font-semibold">{turnScore}</span>
+      {/* Total potential score */}
+      {(potentialScore > 0 || lockedScore > 0) && (
+        <div className="pt-3 border-t border-stone-200">
+          <div className="flex justify-between items-center font-semibold">
+            <span className="text-stone-700">Total When Turn Ends:</span>
+            <span className="text-blue-600 text-lg">+{potentialScore + lockedScore}</span>
           </div>
         </div>
       )}
@@ -69,7 +92,7 @@ export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDispla
             <div className="w-3 h-3 bg-red-100 border border-red-500 rounded flex items-center justify-center">
               <span className="text-xs">🔒</span>
             </div>
-            <span>Permanently locked (scored)</span>
+            <span>Locked (will be scored at turn end)</span>
           </div>
         </div>
       </div>
