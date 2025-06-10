@@ -156,17 +156,11 @@ export function useGameLogic() {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
       
-      // Calculate score from ALL scoring dice (locked + held) - but only add ONCE
-      const allScoringDice = prev.dice.filter(d => d.isLocked || d.isHeld);
-      const { totalScore } = calculateScore(allScoringDice);
-      
-      // Set turn score to the total (don't add to existing, replace it)
-      currentPlayer.turnScore = totalScore;
-      
-      // Add turn score to total score
+      // CRITICAL FIX: Only add the current turnScore to totalScore
+      // Don't recalculate - just use what's already in turnScore
       currentPlayer.totalScore += currentPlayer.turnScore;
       
-      // Check for winner
+      // Check for winner AFTER adding the score
       const winner = currentPlayer.totalScore >= prev.targetScore ? currentPlayer : null;
       
       // Reset turnScore to 0 for next player
