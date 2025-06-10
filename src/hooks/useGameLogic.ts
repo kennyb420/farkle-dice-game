@@ -66,17 +66,7 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
-        const newPlayers = [...prev.players];
-        const currentPlayer = newPlayers[prev.currentPlayerIndex];
-        
-        // Step 1: Calculate score from currently held dice and add to turn score
-        const heldDice = prev.dice.filter(d => d.isHeld);
-        if (heldDice.length > 0) {
-          const { totalScore } = calculateScore(heldDice);
-          currentPlayer.turnScore += totalScore; // Add to existing turn score
-        }
-
-        // Step 2: Lock held dice and roll the rest
+        // Step 1: Lock held dice and roll the rest - DO NOT add score yet
         const newDice = prev.dice.map(die => ({
           ...die,
           // Only roll dice that are NOT locked AND NOT held
@@ -90,7 +80,7 @@ export function useGameLogic() {
         
         const availableDice = newDice.filter(d => !d.isLocked);
 
-        // Step 3: Check if all dice are locked - if so, give fresh dice
+        // Step 2: Check if all dice are locked - if so, give fresh dice
         if (availableDice.length === 0) {
           const freshDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
             id: i,
@@ -102,7 +92,6 @@ export function useGameLogic() {
 
           return {
             ...prev,
-            players: newPlayers,
             dice: freshDice,
             isRolling: false,
             canRoll: false,
@@ -110,11 +99,13 @@ export function useGameLogic() {
           };
         }
 
-        // Step 4: Check for bust
+        // Step 3: Check for bust
         const hasScore = hasAnyScore(availableDice);
         if (!hasScore && availableDice.length > 0) {
           // Bust! Reset turn score to 0
-          currentPlayer.turnScore = 0;
+          const newPlayers = [...prev.players];
+          newPlayers[prev.currentPlayerIndex].turnScore = 0;
+          
           return {
             ...prev,
             players: newPlayers,
@@ -127,7 +118,6 @@ export function useGameLogic() {
 
         return {
           ...prev,
-          players: newPlayers,
           dice: newDice,
           isRolling: false,
           canRoll: false,
@@ -166,12 +156,12 @@ export function useGameLogic() {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
       
-      // Add score from any remaining held dice (not yet locked)
-      const remainingHeldDice = prev.dice.filter(d => d.isHeld);
-      if (remainingHeldDice.length > 0) {
-        const { totalScore } = calculateScore(remainingHeldDice);
-        currentPlayer.turnScore += totalScore;
-      }
+      // Calculate score from ALL scoring dice (locked + held) - but only add ONCE
+      const allScoringDice = prev.dice.filter(d => d.isLocked || d.isHeld);
+      const { totalScore } = calculateScore(allScoringDice);
+      
+      // Set turn score to the total (don't add to existing, replace it)
+      currentPlayer.turnScore = totalScore;
       
       // Add turn score to total score
       currentPlayer.totalScore += currentPlayer.turnScore;
@@ -203,7 +193,22 @@ export function useGameLogic() {
   }, []);
 
   const calculateTurnScore = useCallback(() => {
-    // This function is kept for compatibility
+    setGameState(prev => {
+      const newPlayers = [...prev.players];
+      const currentPlayer = newPlayers[prev.currentPlayerIndex];
+      
+      // Calculate score from all scoring dice (locked + held)
+      const allScoringDice = prev.dice.filter(d => d.isLocked || d.isHeld);
+      const { totalScore } = calculateScore(allScoringDice);
+      
+      // Update turn score (this is just for display, not added to total yet)
+      currentPlayer.turnScore = totalScore;
+      
+      return {
+        ...prev,
+        players: newPlayers
+      };
+    });
   }, []);
 
   const autoSelectScoring = useCallback(() => {
