@@ -39,9 +39,9 @@ export function ScoreHistory({ players, currentPlayerIndex }: ScoreHistoryProps)
 
       <div className="p-6">
         <div className="space-y-4">
-          {players.map((player) => {
+          {players.map((player, playerIndex) => {
             const isExpanded = expandedPlayer === player.id;
-            const isCurrentPlayer = currentPlayerIndex === player.id - 1;
+            const isCurrentPlayer = currentPlayerIndex === playerIndex; // FIXED: Use playerIndex instead of player.id - 1
             const rank = getPlayerRank(player);
             const hasHistory = player.scoreHistory.length > 0;
 
