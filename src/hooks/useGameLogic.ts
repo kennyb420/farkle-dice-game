@@ -199,7 +199,7 @@ export function useGameLogic() {
         currentPlayer.turnScore = currentPlayer.turnCombinations.reduce((total, combo) => total + combo.points, 0);
       }
       
-      // Add turn to score history if player scored points
+      // FIXED: Only add turn to score history if player actually scored points (not busted)
       if (currentPlayer.turnScore > 0) {
         const turnNumber = currentPlayer.scoreHistory.length + 1;
         currentPlayer.scoreHistory.push({
@@ -208,10 +208,12 @@ export function useGameLogic() {
           combinations: [...currentPlayer.turnCombinations],
           totalScoreAfter: currentPlayer.totalScore + currentPlayer.turnScore
         });
+        
+        // Add turn score to total score
+        currentPlayer.totalScore += currentPlayer.turnScore;
       }
       
-      // Add turn score to total score
-      currentPlayer.totalScore += currentPlayer.turnScore;
+      // Reset turn data
       currentPlayer.turnScore = 0;
       currentPlayer.turnCombinations = []; // Clear turn combinations
 
