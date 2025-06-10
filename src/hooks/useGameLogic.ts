@@ -36,9 +36,10 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
-        // Lock all currently held dice permanently and roll only unlocked dice
+        // Lock all currently held dice permanently and roll ONLY unlocked dice
         const newDice = prev.dice.map(die => ({
           ...die,
+          // CRITICAL: Only roll dice that are NOT locked
           value: die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
           isLocked: die.isHeld || die.isLocked, // Lock any held dice
