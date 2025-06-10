@@ -9,48 +9,45 @@ interface ScoreDisplayProps {
 }
 
 export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDisplayProps) {
-  // Calculate potential score from currently held dice (📌)
-  const currentlyHeldDice = heldDice.filter(d => d.isHeld);
-  const { combinations: heldCombinations } = calculateScore(currentlyHeldDice);
-  const potentialScore = heldCombinations.reduce((sum, combo) => sum + combo.points, 0);
+  // Calculate potential score from ALL scoring dice (locked + held)
+  const allScoringDice = heldDice.filter(d => d.isLocked || d.isHeld);
+  const { combinations } = calculateScore(allScoringDice);
+  const totalPendingScore = combinations.reduce((sum, combo) => sum + combo.points, 0);
 
   return (
     <div className="bg-stone-50 rounded-lg p-4 border border-stone-200">
       <div className="mb-3">
         <h3 className="text-lg font-semibold text-stone-800">
           Turn Score: {currentPlayer.turnScore}
-          {potentialScore > 0 && (
-            <span className="text-amber-600 ml-2">
-              + {potentialScore} (pending)
+          {totalPendingScore > 0 && currentPlayer.turnScore === 0 && (
+            <span className="text-blue-600 ml-2">
+              (Will be {totalPendingScore} when turn ends)
             </span>
           )}
         </h3>
         <p className="text-xs text-stone-500 mt-1">
-          Locked dice points are added immediately. Pending points added when you "End Turn".
+          Points are only added to your score when you click "End Turn"
         </p>
       </div>
       
-      {/* Show currently held dice combinations */}
-      {heldCombinations.length > 0 && (
+      {/* Show all scoring combinations */}
+      {combinations.length > 0 && (
         <div className="space-y-2 mb-4">
-          <h4 className="text-sm font-medium text-amber-600 mb-2">
-            📌 Selected This Roll (Pending):
+          <h4 className="text-sm font-medium text-blue-600 mb-2">
+            Scoring Combinations This Turn:
           </h4>
-          {heldCombinations.map((combo, index) => (
-            <div key={index} className="flex justify-between items-center text-sm bg-amber-50 rounded p-2 border border-amber-200">
+          {combinations.map((combo, index) => (
+            <div key={index} className="flex justify-between items-center text-sm bg-blue-50 rounded p-2 border border-blue-200">
               <span className="text-stone-700">{combo.description}</span>
-              <span className="font-medium text-amber-600">+{combo.points}</span>
+              <span className="font-medium text-blue-600">+{combo.points}</span>
             </div>
           ))}
-        </div>
-      )}
-      
-      {/* Total potential score */}
-      {potentialScore > 0 && (
-        <div className="pt-3 border-t border-stone-200">
-          <div className="flex justify-between items-center font-semibold">
-            <span className="text-stone-700">Total When Turn Ends:</span>
-            <span className="text-blue-600 text-lg">{currentPlayer.turnScore + potentialScore}</span>
+          
+          <div className="pt-2 border-t border-blue-200">
+            <div className="flex justify-between items-center font-semibold">
+              <span className="text-stone-700">Total Pending:</span>
+              <span className="text-blue-600 text-lg">+{totalPendingScore}</span>
+            </div>
           </div>
         </div>
       )}
@@ -61,13 +58,13 @@ export function ScoreDisplay({ heldDice, turnScore, currentPlayer }: ScoreDispla
             <div className="w-3 h-3 bg-amber-100 border border-amber-500 rounded flex items-center justify-center">
               <span className="text-xs">📌</span>
             </div>
-            <span>Selected (pending points)</span>
+            <span>Selected (can be unselected)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-100 border border-red-500 rounded flex items-center justify-center">
               <span className="text-xs">🔒</span>
             </div>
-            <span>Locked (points already added)</span>
+            <span>Locked (cannot be unselected)</span>
           </div>
         </div>
       </div>
