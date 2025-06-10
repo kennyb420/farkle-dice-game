@@ -3,6 +3,7 @@ export interface Die {
   value: number;
   isHeld: boolean;
   isScoring: boolean;
+  isLocked: boolean; // New property for permanently locked dice
 }
 
 export interface Player {
@@ -20,6 +21,7 @@ export interface GameState {
   canRoll: boolean;
   gameWinner: Player | null;
   targetScore: number;
+  hasRolledThisTurn: boolean; // Track if player has rolled this turn
 }
 
 export interface ScoringCombination {

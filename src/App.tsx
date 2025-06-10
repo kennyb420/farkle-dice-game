@@ -22,7 +22,7 @@ function App() {
     calculateTurnScore();
   }, [gameState.dice, calculateTurnScore]);
 
-  const heldDice = gameState.dice.filter(d => d.isHeld);
+  const heldDice = gameState.dice.filter(d => d.isHeld || d.isLocked);
   const hasHeldDice = heldDice.length > 0;
 
   return (
@@ -64,6 +64,7 @@ function App() {
             dice={gameState.dice}
             onToggleDie={toggleDie}
             isRolling={gameState.isRolling}
+            hasRolledThisTurn={gameState.hasRolledThisTurn}
           />
 
           {/* Score Display */}
@@ -86,6 +87,7 @@ function App() {
               dice={gameState.dice}
               gameWinner={gameState.gameWinner}
               hasHeldDice={hasHeldDice}
+              hasRolledThisTurn={gameState.hasRolledThisTurn}
             />
           </div>
         </div>
@@ -121,6 +123,17 @@ function App() {
                 <div className="text-amber-600 font-medium">Four+ of a kind: 2x points</div>
               </div>
             </div>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-stone-200">
+            <h4 className="font-medium text-stone-700 mb-2">Game Rules</h4>
+            <ul className="text-sm text-stone-600 space-y-1">
+              <li>• Players must roll dice manually at the start of each turn</li>
+              <li>• Selected dice become permanently locked after rolling</li>
+              <li>• Locked dice cannot be unselected and stay for the entire turn</li>
+              <li>• If all dice are locked, player gets a fresh set of 6 dice</li>
+              <li>• Rolling with no scoring combinations results in a bust</li>
+            </ul>
           </div>
         </div>
       </div>

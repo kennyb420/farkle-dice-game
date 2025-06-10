@@ -13,6 +13,7 @@ interface GameControlsProps {
   dice: Die[];
   gameWinner: any;
   hasHeldDice: boolean;
+  hasRolledThisTurn: boolean;
 }
 
 export function GameControls({ 
@@ -24,10 +25,11 @@ export function GameControls({
   isRolling, 
   dice,
   gameWinner,
-  hasHeldDice
+  hasHeldDice,
+  hasRolledThisTurn
 }: GameControlsProps) {
-  const availableDice = dice.filter(d => !d.isHeld);
-  const hasBusted = !hasAnyScore(availableDice) && availableDice.length > 0 && !canRoll;
+  const availableDice = dice.filter(d => !d.isHeld && !d.isLocked);
+  const hasBusted = !hasAnyScore(availableDice) && availableDice.length > 0 && !canRoll && hasRolledThisTurn;
 
   if (gameWinner) {
     return (
@@ -61,33 +63,41 @@ export function GameControls({
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-3">
-      <button
-        onClick={onRoll}
-        disabled={!canRoll || isRolling}
-        className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
-      >
-        <Dice3 className="w-5 h-5" />
-        {isRolling ? 'Rolling...' : 'Roll Dice'}
-      </button>
+    <div className="space-y-4">
+      {!hasRolledThisTurn && (
+        <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-800 font-medium">Roll the dice to start your turn!</p>
+        </div>
+      )}
+      
+      <div className="flex flex-wrap justify-center gap-3">
+        <button
+          onClick={onRoll}
+          disabled={!canRoll || isRolling}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
+        >
+          <Dice3 className="w-5 h-5" />
+          {isRolling ? 'Rolling...' : hasRolledThisTurn ? 'Roll Again' : 'Roll Dice'}
+        </button>
 
-      <button
-        onClick={onAutoSelect}
-        disabled={availableDice.length === 0}
-        className="flex items-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
-      >
-        <Sparkles className="w-5 h-5" />
-        Auto Select
-      </button>
+        <button
+          onClick={onAutoSelect}
+          disabled={availableDice.length === 0 || !hasRolledThisTurn}
+          className="flex items-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
+        >
+          <Sparkles className="w-5 h-5" />
+          Auto Select
+        </button>
 
-      <button
-        onClick={onEndTurn}
-        disabled={!hasHeldDice}
-        className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
-      >
-        <Hand className="w-5 h-5" />
-        End Turn
-      </button>
+        <button
+          onClick={onEndTurn}
+          disabled={!hasHeldDice}
+          className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
+        >
+          <Hand className="w-5 h-5" />
+          End Turn
+        </button>
+      </div>
     </div>
   );
 }

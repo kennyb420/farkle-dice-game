@@ -10,7 +10,8 @@ export function useGameLogic() {
       id: i,
       value: Math.floor(Math.random() * 6) + 1,
       isHeld: false,
-      isScoring: false
+      isScoring: false,
+      isLocked: false
     }));
 
     return {
@@ -23,7 +24,8 @@ export function useGameLogic() {
       isRolling: false,
       canRoll: true,
       gameWinner: null,
-      targetScore: TARGET_SCORE
+      targetScore: TARGET_SCORE,
+      hasRolledThisTurn: false
     };
   });
 
@@ -34,13 +36,16 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
+        // Lock all currently held dice permanently
         const newDice = prev.dice.map(die => ({
           ...die,
-          value: die.isHeld ? die.value : Math.floor(Math.random() * 6) + 1,
-          isScoring: false
+          value: die.isHeld || die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
+          isScoring: false,
+          isLocked: die.isHeld || die.isLocked, // Lock held dice
+          isHeld: die.isLocked // Keep previously locked dice held
         }));
 
-        const availableDice = newDice.filter(d => !d.isHeld);
+        const availableDice = newDice.filter(d => !d.isLocked);
         const hasScore = hasAnyScore(availableDice);
 
         if (!hasScore && availableDice.length > 0) {
@@ -53,7 +58,8 @@ export function useGameLogic() {
             dice: newDice,
             isRolling: false,
             canRoll: false,
-            players: newPlayers
+            players: newPlayers,
+            hasRolledThisTurn: true
           };
         }
 
@@ -61,19 +67,28 @@ export function useGameLogic() {
           ...prev,
           dice: newDice,
           isRolling: false,
-          canRoll: true
+          canRoll: true,
+          hasRolledThisTurn: true
         };
       });
     }, 600);
   }, [gameState.canRoll, gameState.isRolling]);
 
   const toggleDie = useCallback((dieId: number) => {
-    setGameState(prev => ({
-      ...prev,
-      dice: prev.dice.map(die =>
-        die.id === dieId ? { ...die, isHeld: !die.isHeld } : die
-      )
-    }));
+    setGameState(prev => {
+      // Only allow toggling if the die is not locked and player has rolled this turn
+      if (!prev.hasRolledThisTurn) return prev;
+      
+      return {
+        ...prev,
+        dice: prev.dice.map(die => {
+          if (die.id === dieId && !die.isLocked) {
+            return { ...die, isHeld: !die.isHeld };
+          }
+          return die;
+        })
+      };
+    });
   }, []);
 
   const endTurn = useCallback(() => {
@@ -91,7 +106,8 @@ export function useGameLogic() {
         id: i,
         value: Math.floor(Math.random() * 6) + 1,
         isHeld: false,
-        isScoring: false
+        isScoring: false,
+        isLocked: false
       }));
 
       return {
@@ -100,13 +116,14 @@ export function useGameLogic() {
         currentPlayerIndex: winner ? prev.currentPlayerIndex : (prev.currentPlayerIndex + 1) % prev.players.length,
         dice: newDice,
         canRoll: true,
-        gameWinner: winner
+        gameWinner: winner,
+        hasRolledThisTurn: false
       };
     });
   }, []);
 
   const calculateTurnScore = useCallback(() => {
-    const heldDice = gameState.dice.filter(d => d.isHeld);
+    const heldDice = gameState.dice.filter(d => d.isHeld || d.isLocked);
     const { totalScore } = calculateScore(heldDice);
     
     setGameState(prev => {
@@ -117,25 +134,28 @@ export function useGameLogic() {
   }, [gameState.dice]);
 
   const autoSelectScoring = useCallback(() => {
-    const availableDice = gameState.dice.filter(d => !d.isHeld);
+    if (!gameState.hasRolledThisTurn) return;
+    
+    const availableDice = gameState.dice.filter(d => !d.isHeld && !d.isLocked);
     const selectableDiceIds = getAutoSelectableDice(availableDice);
     
     setGameState(prev => ({
       ...prev,
       dice: prev.dice.map(die => ({
         ...die,
-        isHeld: die.isHeld || selectableDiceIds.includes(die.id),
+        isHeld: die.isHeld || die.isLocked || selectableDiceIds.includes(die.id),
         isScoring: selectableDiceIds.includes(die.id)
       }))
     }));
-  }, [gameState.dice]);
+  }, [gameState.dice, gameState.hasRolledThisTurn]);
 
   const startNewGame = useCallback(() => {
     const newDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
       id: i,
       value: Math.floor(Math.random() * 6) + 1,
       isHeld: false,
-      isScoring: false
+      isScoring: false,
+      isLocked: false
     }));
 
     setGameState({
@@ -148,7 +168,8 @@ export function useGameLogic() {
       isRolling: false,
       canRoll: true,
       gameWinner: null,
-      targetScore: TARGET_SCORE
+      targetScore: TARGET_SCORE,
+      hasRolledThisTurn: false
     });
   }, []);
 

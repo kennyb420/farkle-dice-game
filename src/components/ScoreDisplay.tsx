@@ -29,6 +29,19 @@ export function ScoreDisplay({ heldDice, turnScore }: ScoreDisplayProps) {
       {combinations.length === 0 && heldDice.length > 0 && (
         <p className="text-sm text-stone-500">No scoring combinations selected</p>
       )}
+      
+      <div className="mt-3 pt-3 border-t border-stone-200">
+        <div className="text-xs text-stone-500">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-3 h-3 bg-amber-100 border border-amber-500 rounded"></div>
+            <span>Selected (can be unselected)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-100 border border-red-500 rounded"></div>
+            <span>Locked (permanent)</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
