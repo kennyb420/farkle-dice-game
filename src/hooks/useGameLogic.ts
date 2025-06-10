@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
-import { GameState, Die, Player } from '../types/game';
+import { GameState, Die, Player, GameSettings, GameMode } from '../types/game';
 import { calculateScore, hasAnyScore, getAutoSelectableDice } from '../utils/scoring';
 
-const TARGET_SCORE = 10000;
-
 export function useGameLogic() {
+  const [gameMode, setGameMode] = useState<GameMode>('menu');
   const [gameState, setGameState] = useState<GameState>(() => {
     const initialDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
       id: i,
@@ -15,20 +14,53 @@ export function useGameLogic() {
     }));
 
     return {
-      players: [
-        { id: 1, name: 'Player 1', totalScore: 0, turnScore: 0, turnCombinations: [] },
-        { id: 2, name: 'Player 2', totalScore: 0, turnScore: 0, turnCombinations: [] }
-      ],
+      players: [],
       currentPlayerIndex: 0,
       dice: initialDice,
       isRolling: false,
       canRoll: true,
       gameWinner: null,
-      targetScore: TARGET_SCORE,
+      targetScore: 10000,
       hasRolledThisTurn: false,
       currentLockGroup: 0
     };
   });
+
+  const startGame = useCallback((settings: GameSettings) => {
+    const players: Player[] = Array.from({ length: settings.playerCount }, (_, i) => ({
+      id: i + 1,
+      name: `Player ${i + 1}`,
+      totalScore: 0,
+      turnScore: 0,
+      turnCombinations: []
+    }));
+
+    const initialDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      value: Math.floor(Math.random() * 6) + 1,
+      isHeld: false,
+      isScoring: false,
+      isLocked: false
+    }));
+
+    setGameState({
+      players,
+      currentPlayerIndex: 0,
+      dice: initialDice,
+      isRolling: false,
+      canRoll: true,
+      gameWinner: null,
+      targetScore: settings.targetScore,
+      hasRolledThisTurn: false,
+      currentLockGroup: 0
+    });
+
+    setGameMode('playing');
+  }, []);
+
+  const returnToMenu = useCallback(() => {
+    setGameMode('menu');
+  }, []);
 
   const rollDice = useCallback(() => {
     if (!gameState.canRoll || gameState.isRolling) return;
@@ -172,7 +204,7 @@ export function useGameLogic() {
       currentPlayer.turnCombinations = []; // Clear turn combinations
 
       // Check for winner
-      const winner = currentPlayer.totalScore >= TARGET_SCORE ? currentPlayer : null;
+      const winner = currentPlayer.totalScore >= prev.targetScore ? currentPlayer : null;
 
       // Reset dice for next player
       const newDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
@@ -219,32 +251,14 @@ export function useGameLogic() {
   }, [gameState.dice, gameState.hasRolledThisTurn]);
 
   const startNewGame = useCallback(() => {
-    const newDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
-      id: i,
-      value: Math.floor(Math.random() * 6) + 1,
-      isHeld: false,
-      isScoring: false,
-      isLocked: false
-    }));
-
-    setGameState({
-      players: [
-        { id: 1, name: 'Player 1', totalScore: 0, turnScore: 0, turnCombinations: [] },
-        { id: 2, name: 'Player 2', totalScore: 0, turnScore: 0, turnCombinations: [] }
-      ],
-      currentPlayerIndex: 0,
-      dice: newDice,
-      isRolling: false,
-      canRoll: true,
-      gameWinner: null,
-      targetScore: TARGET_SCORE,
-      hasRolledThisTurn: false,
-      currentLockGroup: 0
-    });
+    setGameMode('menu');
   }, []);
 
   return {
+    gameMode,
     gameState,
+    startGame,
+    returnToMenu,
     rollDice,
     toggleDie,
     endTurn,

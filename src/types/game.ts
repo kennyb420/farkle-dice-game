@@ -33,3 +33,10 @@ export interface ScoringCombination {
   description: string;
   lockGroup: number; // Which roll this combination came from
 }
+
+export interface GameSettings {
+  playerCount: number;
+  targetScore: number;
+}
+
+export type GameMode = 'menu' | 'playing';

@@ -4,11 +4,15 @@ import { DiceRow } from './components/DiceRow';
 import { ScoreDisplay } from './components/ScoreDisplay';
 import { PlayerStatus } from './components/PlayerStatus';
 import { GameControls } from './components/GameControls';
-import { Dice1 } from 'lucide-react';
+import { MainMenu } from './components/MainMenu';
+import { Dice1, ArrowLeft } from 'lucide-react';
 
 function App() {
   const {
+    gameMode,
     gameState,
+    startGame,
+    returnToMenu,
     rollDice,
     toggleDie,
     endTurn,
@@ -19,8 +23,14 @@ function App() {
 
   // Calculate turn score whenever held dice change
   useEffect(() => {
-    calculateTurnScore();
-  }, [gameState.dice, calculateTurnScore]);
+    if (gameMode === 'playing') {
+      calculateTurnScore();
+    }
+  }, [gameState.dice, calculateTurnScore, gameMode]);
+
+  if (gameMode === 'menu') {
+    return <MainMenu onStartGame={startGame} />;
+  }
 
   const heldDice = gameState.dice.filter(d => d.isHeld || d.isLocked);
   const hasHeldDice = heldDice.length > 0;
@@ -32,6 +42,13 @@ function App() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
+            <button
+              onClick={returnToMenu}
+              className="absolute left-4 top-8 flex items-center gap-2 px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Menu
+            </button>
             <Dice1 className="w-8 h-8 text-amber-600" />
             <h1 className="text-3xl font-bold text-stone-800">Kingdom Dice</h1>
             <Dice1 className="w-8 h-8 text-amber-600" />
