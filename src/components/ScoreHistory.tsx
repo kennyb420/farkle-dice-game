@@ -41,7 +41,7 @@ export function ScoreHistory({ players, currentPlayerIndex }: ScoreHistoryProps)
         <div className="space-y-4">
           {players.map((player, playerIndex) => {
             const isExpanded = expandedPlayer === player.id;
-            const isCurrentPlayer = currentPlayerIndex === playerIndex; // FIXED: Use playerIndex instead of player.id - 1
+            const isCurrentPlayer = currentPlayerIndex === playerIndex;
             const rank = getPlayerRank(player);
             const hasHistory = player.scoreHistory.length > 0;
 
@@ -109,54 +109,73 @@ export function ScoreHistory({ players, currentPlayerIndex }: ScoreHistoryProps)
                         Turn-by-Turn Breakdown
                       </h4>
                       
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {player.scoreHistory.map((turn, index) => (
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {player.scoreHistory.map((turn) => (
                           <div
                             key={turn.turnNumber}
-                            className="bg-white rounded-lg p-3 border border-stone-200"
+                            className="bg-white rounded-lg p-4 border border-stone-200"
                           >
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-medium text-stone-700 text-sm">
+                            {/* Turn Header */}
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="font-semibold text-stone-800">
                                 Turn {turn.turnNumber}
                               </span>
                               <div className="text-right">
-                                <div className="font-semibold text-green-600">
+                                <div className="font-bold text-green-600 text-lg">
                                   +{turn.score.toLocaleString()}
                                 </div>
-                                <div className="text-xs text-stone-500">
+                                <div className="text-sm text-stone-500">
                                   Total: {turn.totalScoreAfter.toLocaleString()}
                                 </div>
                               </div>
                             </div>
                             
+                            {/* All Rolls in This Turn */}
                             {turn.combinations.length > 0 && (
-                              <div className="space-y-1">
-                                {/* Group by lock group */}
+                              <div className="space-y-2">
+                                <div className="text-xs font-medium text-stone-600 mb-2">
+                                  Scoring Combinations:
+                                </div>
+                                
+                                {/* Group combinations by lock group (roll) */}
                                 {Array.from(new Set(turn.combinations.map(c => c.lockGroup))).map(lockGroup => {
                                   const groupCombos = turn.combinations.filter(c => c.lockGroup === lockGroup);
                                   const groupTotal = groupCombos.reduce((sum, combo) => sum + combo.points, 0);
                                   
                                   return (
-                                    <div key={lockGroup} className="bg-stone-50 rounded p-2">
-                                      <div className="flex justify-between items-center mb-1">
-                                        <span className="text-xs font-medium text-stone-500">
+                                    <div key={lockGroup} className="bg-stone-50 rounded-lg p-3 border border-stone-200">
+                                      <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-semibold text-stone-600">
                                           Roll #{lockGroup + 1}
                                         </span>
-                                        <span className="text-xs font-medium text-green-600">
-                                          +{groupTotal}
+                                        <span className="text-sm font-semibold text-green-600">
+                                          +{groupTotal.toLocaleString()}
                                         </span>
                                       </div>
+                                      
                                       <div className="space-y-1">
                                         {groupCombos.map((combo, comboIndex) => (
-                                          <div key={comboIndex} className="flex justify-between text-xs">
-                                            <span className="text-stone-600">{combo.description}</span>
-                                            <span className="text-green-600 font-medium">+{combo.points}</span>
+                                          <div key={comboIndex} className="flex justify-between items-center text-sm">
+                                            <span className="text-stone-700">{combo.description}</span>
+                                            <span className="text-green-600 font-medium">
+                                              +{combo.points.toLocaleString()}
+                                            </span>
                                           </div>
                                         ))}
                                       </div>
                                     </div>
                                   );
                                 })}
+                                
+                                {/* Turn Total */}
+                                <div className="pt-2 mt-3 border-t border-stone-300">
+                                  <div className="flex justify-between items-center font-semibold">
+                                    <span className="text-stone-700">Turn Total:</span>
+                                    <span className="text-green-600 text-lg">
+                                      +{turn.score.toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -165,7 +184,7 @@ export function ScoreHistory({ players, currentPlayerIndex }: ScoreHistoryProps)
                       
                       {player.scoreHistory.length > 3 && (
                         <div className="text-center">
-                          <div className="text-xs text-stone-500 bg-white rounded px-2 py-1 inline-block">
+                          <div className="text-xs text-stone-500 bg-white rounded px-3 py-1 inline-block border border-stone-200">
                             Scroll to see all {player.scoreHistory.length} turns
                           </div>
                         </div>
@@ -176,7 +195,7 @@ export function ScoreHistory({ players, currentPlayerIndex }: ScoreHistoryProps)
 
                 {/* No History Message */}
                 {!hasHistory && (
-                  <div className="border-t border-stone-200 p-3 text-center text-stone-500 text-sm">
+                  <div className="border-t border-stone-200 p-4 text-center text-stone-500 text-sm">
                     No completed turns yet
                   </div>
                 )}
