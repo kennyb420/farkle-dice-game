@@ -24,6 +24,7 @@ function App() {
 
   const heldDice = gameState.dice.filter(d => d.isHeld || d.isLocked);
   const hasHeldDice = heldDice.length > 0;
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
@@ -54,7 +55,7 @@ function App() {
             <h2 className="text-xl font-semibold text-center">
               {gameState.gameWinner 
                 ? `🎉 ${gameState.gameWinner.name} Wins! 🎉`
-                : `${gameState.players[gameState.currentPlayerIndex].name}'s Turn`
+                : `${currentPlayer.name}'s Turn`
               }
             </h2>
           </div>
@@ -71,7 +72,8 @@ function App() {
           <div className="px-6 pb-4">
             <ScoreDisplay
               heldDice={heldDice}
-              turnScore={gameState.players[gameState.currentPlayerIndex].turnScore}
+              turnScore={currentPlayer.turnScore}
+              currentPlayer={currentPlayer}
             />
           </div>
 
@@ -131,6 +133,7 @@ function App() {
               <li>• Players must roll dice manually at the start of each turn</li>
               <li>• Selected dice become permanently locked after rolling</li>
               <li>• Locked dice cannot be unselected and stay for the entire turn</li>
+              <li>• <strong>Scoring combinations are calculated separately for each roll</strong></li>
               <li>• If all dice are locked, player gets a fresh set of 6 dice</li>
               <li>• Rolling with no scoring combinations results in a bust</li>
             </ul>

@@ -3,7 +3,8 @@ export interface Die {
   value: number;
   isHeld: boolean;
   isScoring: boolean;
-  isLocked: boolean; // New property for permanently locked dice
+  isLocked: boolean;
+  lockGroup?: number; // Track which roll this die was locked in
 }
 
 export interface Player {
@@ -11,6 +12,7 @@ export interface Player {
   name: string;
   totalScore: number;
   turnScore: number;
+  turnCombinations: ScoringCombination[]; // Track all combinations this turn
 }
 
 export interface GameState {
@@ -21,11 +23,13 @@ export interface GameState {
   canRoll: boolean;
   gameWinner: Player | null;
   targetScore: number;
-  hasRolledThisTurn: boolean; // Track if player has rolled this turn
+  hasRolledThisTurn: boolean;
+  currentLockGroup: number; // Track which roll we're on
 }
 
 export interface ScoringCombination {
   dice: number[];
   points: number;
   description: string;
+  lockGroup: number; // Which roll this combination came from
 }
