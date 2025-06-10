@@ -80,8 +80,20 @@ export function useGameLogic() {
         
         const availableDice = newDice.filter(d => !d.isLocked);
 
-        // Step 2: Check if all dice are locked - if so, give fresh dice and continue turn
+        // Step 2: Check if all dice are locked - BONUS TURN!
         if (availableDice.length === 0) {
+          const newPlayers = [...prev.players];
+          const currentPlayer = newPlayers[prev.currentPlayerIndex];
+          
+          // CRITICAL: Add the current turn score to total score BEFORE giving bonus turn
+          currentPlayer.totalScore += currentPlayer.turnScore;
+          
+          // Check for winner after adding the score
+          const winner = currentPlayer.totalScore >= prev.targetScore ? currentPlayer : null;
+          
+          // Reset turn score for the bonus turn (they start fresh)
+          currentPlayer.turnScore = 0;
+
           const freshDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
             id: i,
             value: Math.floor(Math.random() * 6) + 1,
@@ -92,10 +104,12 @@ export function useGameLogic() {
 
           return {
             ...prev,
+            players: newPlayers,
             dice: freshDice,
             isRolling: false,
             canRoll: false, // Player must select dice before rolling again
-            hasRolledThisTurn: true
+            hasRolledThisTurn: true,
+            gameWinner: winner // Set winner if they reached target score
           };
         }
 
@@ -156,8 +170,7 @@ export function useGameLogic() {
       const newPlayers = [...prev.players];
       const currentPlayer = newPlayers[prev.currentPlayerIndex];
       
-      // CRITICAL FIX: Only add the current turnScore to totalScore
-      // Don't recalculate - just use what's already in turnScore
+      // Add the current turnScore to totalScore
       currentPlayer.totalScore += currentPlayer.turnScore;
       
       // Check for winner AFTER adding the score
