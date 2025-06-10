@@ -28,8 +28,9 @@ export function GameControls({
   hasHeldDice,
   hasRolledThisTurn
 }: GameControlsProps) {
-  const availableDice = dice.filter(d => !d.isHeld && !d.isLocked);
+  const availableDice = dice.filter(d => !d.isLocked);
   const hasBusted = !hasAnyScore(availableDice) && availableDice.length > 0 && !canRoll && hasRolledThisTurn;
+  const hasSelectedNewDice = dice.some(d => d.isHeld && !d.isLocked);
 
   if (gameWinner) {
     return (
@@ -70,6 +71,17 @@ export function GameControls({
         </div>
       )}
       
+      {hasRolledThisTurn && !canRoll && !hasBusted && (
+        <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-amber-800 font-medium">
+            {hasSelectedNewDice 
+              ? "Selected dice will be locked when you roll again!" 
+              : "Select scoring dice before rolling again!"
+            }
+          </p>
+        </div>
+      )}
+      
       <div className="flex flex-wrap justify-center gap-3">
         <button
           onClick={onRoll}
@@ -77,7 +89,7 @@ export function GameControls({
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
         >
           <Dice3 className="w-5 h-5" />
-          {isRolling ? 'Rolling...' : hasRolledThisTurn ? 'Roll Again' : 'Roll Dice'}
+          {isRolling ? 'Rolling...' : hasRolledThisTurn ? 'Roll Remaining Dice' : 'Roll Dice'}
         </button>
 
         <button

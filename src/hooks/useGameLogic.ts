@@ -36,17 +36,36 @@ export function useGameLogic() {
 
     setTimeout(() => {
       setGameState(prev => {
-        // Lock all currently held dice permanently
+        // Lock all currently held dice permanently and roll only unlocked dice
         const newDice = prev.dice.map(die => ({
           ...die,
-          value: die.isHeld || die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
+          value: die.isLocked ? die.value : Math.floor(Math.random() * 6) + 1,
           isScoring: false,
-          isLocked: die.isHeld || die.isLocked, // Lock held dice
-          isHeld: die.isLocked // Keep previously locked dice held
+          isLocked: die.isHeld || die.isLocked, // Lock any held dice
+          isHeld: die.isLocked // Keep previously locked dice as held
         }));
 
         const availableDice = newDice.filter(d => !d.isLocked);
         const hasScore = hasAnyScore(availableDice);
+
+        // Check if all dice are locked - if so, give fresh dice
+        if (availableDice.length === 0) {
+          const freshDice: Die[] = Array.from({ length: 6 }, (_, i) => ({
+            id: i,
+            value: Math.floor(Math.random() * 6) + 1,
+            isHeld: false,
+            isScoring: false,
+            isLocked: false
+          }));
+
+          return {
+            ...prev,
+            dice: freshDice,
+            isRolling: false,
+            canRoll: false, // Player must select dice before rolling again
+            hasRolledThisTurn: true
+          };
+        }
 
         if (!hasScore && availableDice.length > 0) {
           // Bust! End turn with no points
@@ -67,7 +86,7 @@ export function useGameLogic() {
           ...prev,
           dice: newDice,
           isRolling: false,
-          canRoll: true,
+          canRoll: false, // Player must select dice before rolling again
           hasRolledThisTurn: true
         };
       });
@@ -79,14 +98,20 @@ export function useGameLogic() {
       // Only allow toggling if the die is not locked and player has rolled this turn
       if (!prev.hasRolledThisTurn) return prev;
       
+      const newDice = prev.dice.map(die => {
+        if (die.id === dieId && !die.isLocked) {
+          return { ...die, isHeld: !die.isHeld };
+        }
+        return die;
+      });
+
+      // Check if player has selected any dice - if so, allow rolling again
+      const hasSelectedDice = newDice.some(d => d.isHeld && !d.isLocked);
+      
       return {
         ...prev,
-        dice: prev.dice.map(die => {
-          if (die.id === dieId && !die.isLocked) {
-            return { ...die, isHeld: !die.isHeld };
-          }
-          return die;
-        })
+        dice: newDice,
+        canRoll: hasSelectedDice // Can only roll if dice are selected
       };
     });
   }, []);
@@ -145,7 +170,8 @@ export function useGameLogic() {
         ...die,
         isHeld: die.isHeld || die.isLocked || selectableDiceIds.includes(die.id),
         isScoring: selectableDiceIds.includes(die.id)
-      }))
+      })),
+      canRoll: selectableDiceIds.length > 0 // Can roll if dice were selected
     }));
   }, [gameState.dice, gameState.hasRolledThisTurn]);
 
