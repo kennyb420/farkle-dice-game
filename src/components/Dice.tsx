@@ -30,15 +30,16 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
       className={`
         relative w-16 h-16 rounded-lg border-2 transition-all duration-300 
         ${die.isLocked
-          ? 'bg-red-100 border-red-500 shadow-lg shadow-red-500/25 scale-105' 
+          ? 'bg-gradient-to-br from-red-100 to-red-200 border-red-600 shadow-lg shadow-red-600/30 scale-105' 
           : die.isHeld
-          ? 'bg-amber-100 border-amber-500 shadow-lg shadow-amber-500/25 scale-105'
-          : 'bg-white border-stone-300 hover:border-stone-400 hover:shadow-md'
+          ? 'bg-gradient-to-br from-amber-100 to-amber-200 border-amber-600 shadow-lg shadow-amber-600/30 scale-105'
+          : 'bg-gradient-to-br from-stone-100 to-stone-200 border-stone-400 hover:border-stone-500 hover:shadow-md shadow-lg'
         }
         ${die.isScoring ? 'ring-2 ring-green-400 ring-opacity-75' : ''}
         ${isRolling ? 'animate-spin' : ''}
-        ${canToggle ? 'cursor-pointer' : 'cursor-not-allowed'}
-        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+        ${canToggle ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed'}
+        focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50
+        tavern-glow
       `}
       disabled={!canToggle}
     >
@@ -47,8 +48,8 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
           <div
             key={index}
             className={`
-              absolute w-2 h-2 rounded-full
-              ${die.isLocked ? 'bg-red-700' : 'bg-stone-700'}
+              absolute w-2.5 h-2.5 rounded-full shadow-sm
+              ${die.isLocked ? 'bg-red-800' : die.isHeld ? 'bg-amber-800' : 'bg-stone-800'}
               ${position === 'top-left' ? 'top-2 left-2' : ''}
               ${position === 'top-right' ? 'top-2 right-2' : ''}
               ${position === 'middle-left' ? 'top-1/2 left-2 -translate-y-1/2' : ''}
@@ -63,14 +64,14 @@ export function Dice({ die, onToggle, isRolling, hasRolledThisTurn }: DiceProps)
       
       {/* Permanently locked indicator */}
       {die.isLocked && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
           <span className="text-white text-xs">🔒</span>
         </div>
       )}
       
       {/* Selected/held indicator (can be toggled) */}
       {die.isHeld && !die.isLocked && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center">
+        <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center shadow-lg">
           <span className="text-white text-xs">📌</span>
         </div>
       )}

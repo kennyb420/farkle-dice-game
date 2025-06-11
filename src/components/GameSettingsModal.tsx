@@ -26,23 +26,23 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
   const presetScores = [5000, 10000, 15000, 20000];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+      <div className="wooden-panel rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto tavern-glow">
         {/* Header */}
-        <div className={`text-white p-6 rounded-t-xl ${
+        <div className={`text-amber-100 p-6 rounded-t-xl ${
           gameMode === 'pve' 
-            ? 'bg-gradient-to-r from-purple-600 to-purple-700' 
-            : 'bg-gradient-to-r from-blue-600 to-blue-700'
+            ? 'bg-gradient-to-r from-purple-800 to-purple-900 border-b-2 border-purple-700' 
+            : 'bg-gradient-to-r from-blue-800 to-blue-900 border-b-2 border-blue-700'
         }`}>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
+            <h2 className="text-xl font-semibold flex items-center gap-2 drop-shadow">
               {gameMode === 'pve' ? <Bot className="w-5 h-5" /> : <Users className="w-5 h-5" />}
               {gameMode === 'pve' ? 'Player vs AI' : 'Player vs Player'}
             </h2>
             <button
               onClick={onClose}
               className={`p-1 rounded-full transition-colors ${
-                gameMode === 'pve' ? 'hover:bg-purple-500' : 'hover:bg-blue-500'
+                gameMode === 'pve' ? 'hover:bg-purple-700' : 'hover:bg-blue-700'
               }`}
             >
               <X className="w-5 h-5" />
@@ -50,11 +50,11 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-wood-medium wood-grain">
           {/* AI Difficulty Selection (only for PvE) */}
           {gameMode === 'pve' && (
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-              <label className="block text-sm font-medium text-purple-800 mb-3">
+            <div className="bg-purple-900 bg-opacity-30 rounded-lg p-4 border border-purple-700">
+              <label className="block text-sm font-medium text-purple-200 mb-3">
                 <Brain className="w-4 h-4 inline mr-1" />
                 AI Difficulty
               </label>
@@ -64,13 +64,13 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
                   className={`
                     p-4 rounded-lg border-2 transition-all font-medium text-left
                     ${aiDifficulty === 'easy'
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                      ? 'border-green-500 bg-green-900 bg-opacity-50 text-green-200'
+                      : 'border-amber-700 bg-amber-900 bg-opacity-30 text-amber-300 hover:border-amber-600'
                     }
                   `}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-green-600" />
+                    <Zap className="w-4 h-4 text-green-400" />
                     <span className="font-semibold">Easy</span>
                   </div>
                   <div className="text-xs space-y-1">
@@ -85,13 +85,13 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
                   className={`
                     p-4 rounded-lg border-2 transition-all font-medium text-left
                     ${aiDifficulty === 'hard'
-                      ? 'border-red-500 bg-red-50 text-red-700'
-                      : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                      ? 'border-red-500 bg-red-900 bg-opacity-50 text-red-200'
+                      : 'border-amber-700 bg-amber-900 bg-opacity-30 text-amber-300 hover:border-amber-600'
                     }
                   `}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Brain className="w-4 h-4 text-red-600" />
+                    <Brain className="w-4 h-4 text-red-400" />
                     <span className="font-semibold">Hard</span>
                   </div>
                   <div className="text-xs space-y-1">
@@ -105,17 +105,17 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
           )}
 
           {/* Default Rules Toggle */}
-          <div className="bg-stone-50 rounded-lg p-4 border border-stone-200">
+          <div className="bg-amber-900 bg-opacity-30 rounded-lg p-4 border border-amber-700">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={useDefaults}
                 onChange={(e) => setUseDefaults(e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
               />
               <div>
-                <span className="font-medium text-stone-800">Use Default Rules</span>
-                <p className="text-sm text-stone-600">
+                <span className="font-medium text-amber-200">Use Default Rules</span>
+                <p className="text-sm text-amber-300">
                   {gameMode === 'pve' ? 'Player vs AI' : '2 players'}, first to 10,000 points wins
                 </p>
               </div>
@@ -127,7 +127,7 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
             <div className="space-y-6">
               {/* Player Count */}
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-3">
+                <label className="block text-sm font-medium text-amber-200 mb-3">
                   <Users className="w-4 h-4 inline mr-1" />
                   Number of Players
                 </label>
@@ -139,8 +139,8 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
                       className={`
                         p-3 rounded-lg border-2 transition-all font-medium
                         ${playerCount === count
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                          ? 'border-blue-500 bg-blue-900 bg-opacity-50 text-blue-200'
+                          : 'border-amber-700 bg-amber-900 bg-opacity-30 text-amber-300 hover:border-amber-600'
                         }
                       `}
                     >
@@ -155,7 +155,7 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
           {/* Target Score (when not using defaults) */}
           {!useDefaults && (
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-3">
+              <label className="block text-sm font-medium text-amber-200 mb-3">
                 <Target className="w-4 h-4 inline mr-1" />
                 Target Score
               </label>
@@ -169,8 +169,8 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
                     className={`
                       p-2 rounded-lg border-2 transition-all font-medium text-sm
                       ${targetScore === score
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                        ? 'border-blue-500 bg-blue-900 bg-opacity-50 text-blue-200'
+                        : 'border-amber-700 bg-amber-900 bg-opacity-30 text-amber-300 hover:border-amber-600'
                       }
                     `}
                   >
@@ -188,28 +188,28 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
                   min="1000"
                   max="100000"
                   step="1000"
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-amber-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-amber-900 bg-opacity-30 text-amber-100"
                   placeholder="Custom score..."
                 />
-                <span className="absolute right-3 top-2 text-stone-500 text-sm">pts</span>
+                <span className="absolute right-3 top-2 text-amber-400 text-sm">pts</span>
               </div>
-              <p className="text-xs text-stone-500 mt-1">Minimum: 1,000 points</p>
+              <p className="text-xs text-amber-400 mt-1">Minimum: 1,000 points</p>
             </div>
           )}
 
           {/* Game Preview */}
           <div className={`rounded-lg p-4 border ${
             gameMode === 'pve' 
-              ? 'bg-purple-50 border-purple-200' 
-              : 'bg-amber-50 border-amber-200'
+              ? 'bg-purple-900 bg-opacity-30 border-purple-700' 
+              : 'bg-blue-900 bg-opacity-30 border-blue-700'
           }`}>
             <h4 className={`font-medium mb-2 ${
-              gameMode === 'pve' ? 'text-purple-800' : 'text-amber-800'
+              gameMode === 'pve' ? 'text-purple-200' : 'text-blue-200'
             }`}>
               Game Setup
             </h4>
             <div className={`text-sm space-y-1 ${
-              gameMode === 'pve' ? 'text-purple-700' : 'text-amber-700'
+              gameMode === 'pve' ? 'text-purple-300' : 'text-blue-300'
             }`}>
               <div className="flex justify-between">
                 <span>Mode:</span>
@@ -234,16 +234,16 @@ export function GameSettingsModal({ gameMode, onStartGame, onClose }: GameSettin
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50 transition-colors font-medium"
+              className="flex-1 px-4 py-3 border border-amber-700 text-amber-200 rounded-lg hover:bg-amber-900 hover:bg-opacity-30 transition-colors font-medium"
             >
               Cancel
             </button>
             <button
               onClick={handleStartGame}
-              className={`flex-1 px-4 py-3 text-white rounded-lg transition-all font-medium flex items-center justify-center gap-2 ${
+              className={`flex-1 px-4 py-3 text-amber-100 rounded-lg transition-all font-medium flex items-center justify-center gap-2 ${
                 gameMode === 'pve'
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800'
-                  : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
+                  ? 'bg-gradient-to-r from-purple-800 to-purple-900 hover:from-purple-700 hover:to-purple-800 border border-purple-600'
+                  : 'bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 border border-green-600'
               }`}
             >
               <Play className="w-4 h-4" />

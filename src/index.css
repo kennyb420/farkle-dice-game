@@ -22,6 +22,69 @@
   .border-gold-500 {
     border-color: #f59e0b;
   }
+
+  /* Wooden table textures */
+  .bg-wood-dark {
+    background: linear-gradient(135deg, #3c2415 0%, #5d4037 25%, #4a2c2a 50%, #3c2415 75%, #2d1810 100%);
+  }
+  
+  .bg-wood-medium {
+    background: linear-gradient(135deg, #5d4037 0%, #8d6e63 25%, #6d4c41 50%, #5d4037 75%, #4a2c2a 100%);
+  }
+  
+  .bg-wood-light {
+    background: linear-gradient(135deg, #8d6e63 0%, #a1887f 25%, #795548 50%, #6d4c41 75%, #5d4037 100%);
+  }
+
+  .bg-wood-table {
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(139, 69, 19, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(101, 67, 33, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(160, 82, 45, 0.2) 0%, transparent 50%),
+      linear-gradient(135deg, #8b4513 0%, #a0522d 15%, #cd853f 30%, #daa520 45%, #b8860b 60%, #8b4513 75%, #654321 90%, #3e2723 100%);
+    background-size: 400px 400px, 300px 300px, 500px 500px, 100% 100%;
+  }
+
+  .wood-grain {
+    position: relative;
+  }
+  
+  .wood-grain::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(101, 67, 33, 0.1) 2px,
+        rgba(101, 67, 33, 0.1) 4px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 8px,
+        rgba(139, 69, 19, 0.05) 8px,
+        rgba(139, 69, 19, 0.05) 12px
+      );
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .tavern-glow {
+    box-shadow: 
+      0 0 20px rgba(255, 140, 0, 0.3),
+      0 0 40px rgba(255, 140, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .candlelight {
+    background: radial-gradient(circle at center, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+  }
 }
 
 @keyframes roll {
@@ -36,8 +99,27 @@
   animation: roll 0.6s ease-in-out;
 }
 
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-flicker {
+  animation: flicker 2s ease-in-out infinite;
+}
+
 @layer components {
   .dice-dot {
-    @apply w-2 h-2 bg-stone-700 rounded-full absolute;
+    @apply w-2 h-2 rounded-full absolute;
+  }
+
+  .wooden-panel {
+    @apply bg-wood-medium wood-grain border-2 border-amber-900 shadow-lg;
+  }
+
+  .tavern-button {
+    @apply bg-wood-light wood-grain border-2 border-amber-800 text-amber-100 font-semibold 
+           hover:bg-wood-medium hover:border-amber-700 transition-all duration-300 
+           shadow-lg hover:shadow-xl transform hover:scale-105;
   }
 }

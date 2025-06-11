@@ -46,7 +46,7 @@ export function GameControls({
       <div className="flex justify-center">
         <button
           onClick={onNewGame}
-          className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+          className="flex items-center gap-2 px-6 py-3 tavern-button rounded-lg"
         >
           <RotateCcw className="w-5 h-5" />
           New Game
@@ -58,14 +58,14 @@ export function GameControls({
   if (hasBusted) {
     return (
       <div className="text-center">
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-red-800 mb-1">BUST!</h3>
-          <p className="text-red-600">No scoring combinations. Turn ends with 0 points.</p>
+        <div className="mb-4 p-4 bg-red-900 bg-opacity-50 border border-red-700 rounded-lg">
+          <h3 className="text-lg font-semibold text-red-200 mb-1 drop-shadow">BUST!</h3>
+          <p className="text-red-300">No scoring combinations. Turn ends with 0 points.</p>
         </div>
         {!isAITurn && (
           <button
             onClick={onEndTurn}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+            className="px-6 py-3 bg-red-800 text-amber-100 rounded-lg hover:bg-red-700 transition-colors font-medium border border-red-600"
           >
             End Turn
           </button>
@@ -78,24 +78,24 @@ export function GameControls({
   if (isAITurn) {
     return (
       <div className="text-center space-y-4">
-        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+        <div className="p-4 bg-purple-900 bg-opacity-50 border border-purple-700 rounded-lg">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Bot className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-purple-800">AI Turn</h3>
+            <Bot className="w-5 h-5 text-purple-400" />
+            <h3 className="text-lg font-semibold text-purple-200 drop-shadow">AI Turn</h3>
           </div>
           {aiThinking ? (
             <div className="flex items-center justify-center gap-2">
-              <Brain className="w-4 h-4 text-purple-600 animate-pulse" />
-              <p className="text-purple-700">AI is thinking...</p>
+              <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
+              <p className="text-purple-300">AI is thinking...</p>
             </div>
           ) : (
-            <p className="text-purple-700">AI is making its move</p>
+            <p className="text-purple-300">AI is making its move</p>
           )}
         </div>
         
         {/* Show current dice state for AI */}
         {permanentlyLockedDice.length > 0 && (
-          <div className="text-center text-xs text-red-600">
+          <div className="text-center text-xs text-red-400">
             {permanentlyLockedDice.length} dice permanently locked (🔒) this turn
           </div>
         )}
@@ -106,27 +106,27 @@ export function GameControls({
   return (
     <div className="space-y-4">
       {!hasRolledThisTurn && (
-        <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-blue-800 font-medium">Roll the dice to start your turn!</p>
+        <div className="text-center p-3 bg-blue-900 bg-opacity-50 border border-blue-700 rounded-lg">
+          <p className="text-blue-200 font-medium">Roll the dice to start your turn!</p>
         </div>
       )}
       
       {hasRolledThisTurn && !canRoll && !hasBusted && !allDiceLocked && (
-        <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-amber-800 font-medium">
+        <div className="text-center p-3 bg-amber-900 bg-opacity-50 border border-amber-700 rounded-lg">
+          <p className="text-amber-200 font-medium">
             Select scoring dice (📌) to hold them! Click selected dice to unselect.
           </p>
         </div>
       )}
       
       {allDiceLocked && (
-        <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg">
+        <div className="text-center p-4 bg-gradient-to-r from-purple-900 to-pink-900 bg-opacity-50 border-2 border-purple-600 rounded-lg">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-purple-800">BONUS TURN!</h3>
-            <Sparkles className="w-5 h-5 text-purple-600" />
+            <Sparkles className="w-5 h-5 text-purple-400" />
+            <h3 className="text-lg font-semibold text-purple-200 drop-shadow">BONUS TURN!</h3>
+            <Sparkles className="w-5 h-5 text-purple-400" />
           </div>
-          <p className="text-purple-700 font-medium">
+          <p className="text-purple-300 font-medium">
             All 6 dice locked! You get fresh dice and continue your turn!
           </p>
         </div>
@@ -136,7 +136,7 @@ export function GameControls({
         <button
           onClick={onRoll}
           disabled={!canRoll || isRolling}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="flex items-center gap-2 px-6 py-3 bg-blue-800 text-amber-100 rounded-lg hover:bg-blue-700 disabled:bg-stone-600 disabled:cursor-not-allowed transition-colors font-medium border border-blue-600 hover:border-blue-500"
         >
           <Dice3 className="w-5 h-5" />
           {isRolling ? 'Rolling...' : hasRolledThisTurn ? 'Roll Remaining Dice' : 'Roll Dice'}
@@ -145,7 +145,7 @@ export function GameControls({
         <button
           onClick={onEndTurn}
           disabled={!hasAnyLockedOrHeldDice}
-          className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="flex items-center gap-2 px-6 py-3 bg-green-800 text-amber-100 rounded-lg hover:bg-green-700 disabled:bg-stone-600 disabled:cursor-not-allowed transition-colors font-medium border border-green-600 hover:border-green-500"
         >
           <Hand className="w-5 h-5" />
           End Turn
@@ -153,13 +153,13 @@ export function GameControls({
       </div>
       
       {heldDice.length > 0 && (
-        <div className="text-center text-xs text-amber-600">
+        <div className="text-center text-xs text-amber-400">
           {heldDice.length} dice selected (📌) - click "Roll Remaining Dice" to lock them permanently or "End Turn" to score them
         </div>
       )}
       
       {permanentlyLockedDice.length > 0 && (
-        <div className="text-center text-xs text-red-600">
+        <div className="text-center text-xs text-red-400">
           {permanentlyLockedDice.length} dice permanently locked (🔒) this turn
         </div>
       )}
