@@ -11,12 +11,20 @@
     color: #f59e0b;
   }
   
+  .text-gold-400 {
+    color: #fbbf24;
+  }
+  
   .bg-gold-50 {
     background-color: #fffbeb;
   }
   
   .bg-gold-500 {
     background-color: #f59e0b;
+  }
+  
+  .bg-gold-900 {
+    background-color: #78350f;
   }
   
   .border-gold-500 {

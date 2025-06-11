@@ -37,7 +37,7 @@ function App() {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="min-h-screen bg-wood-table wood-grain candlelight">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8 relative">
